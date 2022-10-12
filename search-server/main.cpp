@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include <algorithm>
 #include <iostream>
 #include <set>
