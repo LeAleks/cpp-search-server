@@ -83,25 +83,6 @@ public:
 		for (const string& word : words){
 			//Проверяем, есть ли слово в словаре word_to_documents_freqs_
 			word_to_documents_freqs_[word][document_id] += part;
-			
-/*			if (word_to_documents_freqs_.count(word) == 0) {
-				//Если слова нет, то добавляем пару в паре {word, {document_id, TF}}
-				word_to_documents_freqs_[word][document_id] = part;
-				//word_to_documents_freqs_[word][]; 							//создали слово
-				//word_to_documents_freqs_.at(word)[document_id];				//создали в субсловаре id
-				//word_to_documents_freqs_.at(word).at(document_id) = part;	//присвоили слову id значение TF = 1 part
-			} else {
-				//Слово есть, проверяем, был есть ли document_id (проверка на повтор слова)
-				if (word_to_documents_freqs_.at(word).count(document_id) == 0) {
-					//Слово есть, но id нет. Значит слово повторено в новом документе
-					//добавляем только id и TF = 1 part
-					word_to_documents_freqs_.at(word)[document_id] = part;				//создали в субсловаре id
-					//word_to_documents_freqs_.at(word).at(document_id) = part;	//присвоили слову id значение part
-				} else {
-					//Слово уже есть, id тоже уже есть. Значит увеличиваем TF
-					word_to_documents_freqs_.at(word).at(document_id) += part;	//TF увеличен на 1 part
-				}
-			}*/
 		}
     }
 
@@ -141,7 +122,7 @@ private:
 	map<string, map<int, double>> word_to_documents_freqs_;
 
 	//Вспомогательный упорядоченный вектор для хранения стоп-слов
-    set<string> stop_words_;
+	set<string> stop_words_;
 	
 	//Количество документов заведенных в систему
 	int document_count_ = 0;
@@ -177,6 +158,10 @@ private:
         return query_words;
     }
 
+	double IDFCalc (const string& word) const {
+		return log(static_cast<double> (document_count_) / word_to_documents_freqs_.at(word).size());
+	}
+
 	//Функция поиска слов из запроса во всех документах с учетом TF-IDF
 	vector<Document> FindAllDocuments(const Query query_words) const {
 		//На входеполучаем структуру запроса из plus/minus слов
@@ -187,19 +172,21 @@ private:
 		//Проходим по плюс словам
 		for (const string& word : query_words.plus_words) {
 			//Находим плюс слово в word_to_documents_freqs_
-			int match = count_if(word_to_documents_freqs_.begin(), word_to_documents_freqs_.end(),
-								[word] (const pair<string, map<int, double>> w_t_d_f_) {return w_t_d_f_.first == word;});
+			int match = word_to_documents_freqs_.count(word);
 			
 			//Если слово найдено, то проводим рассчеты
 			if (match != 0) {
 				//Считаем IDF слова
-				double word_IDF = log(static_cast<double> (document_count_) / word_to_documents_freqs_.at(word).size());
+				double word_IDF = IDFCalc(word);
+				
+				//Выводим словарь документов с TF для данного слова
+				map<int, double> id_tf = word_to_documents_freqs_.at(word);
 				
 				//Добавляем информацию по документу в цикле для всех документов, связанных со словом
-				for (const auto& [doc_id, temp] : word_to_documents_freqs_.at(word)) {
+				for (const auto& [doc_id, tf] : word_to_documents_freqs_.at(word)) {
 					//Если документа нет, то документ и текущий IDF-TF
 					//Если документ есть, то добавляем к предыдущему значению IDF-TF текущее значение
-					document_to_relevance[doc_id] += word_IDF * word_to_documents_freqs_.at(word).at(doc_id);
+					document_to_relevance[doc_id] += word_IDF * id_tf.at(doc_id);
 				}
 			}
 		}
@@ -207,12 +194,11 @@ private:
 		//Проходим по minus словам
 		for (const string& word : query_words.minus_words) {
 			//Находим минус слово в word_to_documents_freqs_
-			int match = count_if(word_to_documents_freqs_.begin(), word_to_documents_freqs_.end(),
-								[word] (const pair<string, map<int, double>> w_t_d_f_) {return w_t_d_f_.first == word;});
-			
+			int match = word_to_documents_freqs_.count(word);
+
 			//Если найдено слово, то удаляем документы с соответствующим id
-			if (match !=0) {
-				for (const auto& [doc_id, temp] : word_to_documents_freqs_.at(word)) {
+			if (match != 0) {
+				for (const auto& [doc_id, tf] : word_to_documents_freqs_.at(word)) {
 					document_to_relevance.erase(doc_id);
 				}
 			}
