@@ -178,15 +178,12 @@ private:
 			if (match != 0) {
 				//Считаем IDF слова
 				double word_IDF = IDFCalc(word);
-				
-				//Выводим словарь документов с TF для данного слова
-				map<int, double> id_tf = word_to_documents_freqs_.at(word);
-				
+
 				//Добавляем информацию по документу в цикле для всех документов, связанных со словом
 				for (const auto& [doc_id, tf] : word_to_documents_freqs_.at(word)) {
 					//Если документа нет, то документ и текущий IDF-TF
 					//Если документ есть, то добавляем к предыдущему значению IDF-TF текущее значение
-					document_to_relevance[doc_id] += word_IDF * id_tf.at(doc_id);
+					document_to_relevance[doc_id] += word_IDF * tf;
 				}
 			}
 		}
