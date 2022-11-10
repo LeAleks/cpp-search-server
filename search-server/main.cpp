@@ -44,14 +44,48 @@ void TestAddingDocument() {
         SearchServer server;
         server.AddDocument(doc_id, content, DocumentStatus::ACTUAL, ratings);
         const auto found_docs = server.FindTopDocuments("cat"s);
-        ASSERT_EQUAL(found_docs.size(), 1u);
+        ASSERT_EQUAL_HINT(found_docs.size(), 1u, "There should one documents in the base"s);
         const Document& doc0 = found_docs[0];
-        ASSERT_EQUAL(doc0.id, doc_id);
-        int correct_rating = accumulate(ratings.begin(), ratings.end(), 0) / static_cast<int>(ratings.size());
-        ASSERT_EQUAL(doc0.rating, correct_rating);
-        ASSERT_EQUAL(doc0.relevance, 0);
+        ASSERT_EQUAL_HINT(doc0.id, doc_id, "Incorrect document id"s);
+        ASSERT_EQUAL_HINT(doc0.rating, 2, "Incorrect rating calculation"s);
+        ASSERT_EQUAL_HINT(doc0.relevance, 0, "Incorrect relevance calculation"s);
     }
 }
+
+
+//Тест проверяет, что при добавлении документа верно рассчитывается его рейтинг
+void TestRatingCalculation() {
+    //Задаем тело документа
+    const int doc0_id = 42;
+    const string content0 = "cat in the city"s;
+    const vector<int> ratings0 = { 1, 2, 3 };
+
+    {
+        SearchServer server;
+        server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
+        const auto found_docs = server.FindTopDocuments("cat"s);
+        int ratings_sum = accumulate(ratings0.begin(), ratings0.end(), 0);
+        int number_of_marks = static_cast<int>(ratings0.size());
+        int correct_average_rating = ratings_sum / number_of_marks;
+        ASSERT_EQUAL_HINT(found_docs[0].rating, correct_average_rating, "Incorrect rating calculation"s);
+    }
+
+    //Проверяем, что если суммарный рейтин меньше 0, то рассчет все еще корректен
+    //Задаем тело документа
+    const int doc1_id = 42;
+    const string content1 = "cat in the city"s;
+    const vector<int> ratings1 = { -1, -2, -3 };
+    {
+        SearchServer server;
+        server.AddDocument(doc1_id, content1, DocumentStatus::ACTUAL, ratings1);
+        const auto found_docs = server.FindTopDocuments("cat"s);
+        int ratings_sum = accumulate(ratings1.begin(), ratings1.end(), 0);
+        int number_of_marks = static_cast<int>(ratings1.size());
+        int correct_average_rating = ratings_sum / number_of_marks;
+        ASSERT_EQUAL(found_docs[0].rating, correct_average_rating, "Incorrect rating calculation. Negative rating was calculated incorrectly"s);
+    }
+}
+
 
 // Тест проверяет, что поисковая система исключает стоп-слова при добавлении документов
 void TestExcludeStopWordsFromAddedDocumentContent() {
@@ -323,6 +357,7 @@ void TestMatchingStatus() {
 // Функция TestSearchServer является точкой входа для запуска тестов
 void TestSearchServer() {
     RUN_TEST(TestAddingDocument);
+    RUN_TEST(TestRatingCalculation);
     RUN_TEST(TestExcludeStopWordsFromAddedDocumentContent);
     RUN_TEST(TestExludeDocumentsWithMinusWords);
     RUN_TEST(TestMatchingDocuments);
