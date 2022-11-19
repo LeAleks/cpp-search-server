@@ -6,11 +6,13 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <numeric>
 #include <optional>
 
 using namespace std;
 
 const int MAX_RESULT_DOCUMENT_COUNT = 5;
+const int RELEVANCE_ACCURACY = 1e-6;
 
 string ReadLine() {
     string s;
@@ -23,27 +25,6 @@ int ReadLineWithNumber() {
     cin >> result;
     ReadLine();
     return result;
-}
-
-vector<string> SplitIntoWords(const string& text) {
-    vector<string> words;
-    string word;
-    for (const char c : text) {
-        if (c == ' ') {
-            if (!word.empty()) {
-                words.push_back(word);
-                word.clear();
-            }
-        }
-        else {
-            word += c;
-        }
-    }
-    if (!word.empty()) {
-        words.push_back(word);
-    }
-
-    return words;
 }
 
 struct Document {
@@ -60,17 +41,6 @@ struct Document {
     int rating = 0;
 };
 
-template <typename StringContainer>
-set<string> MakeUniqueNonEmptyStrings(const StringContainer& strings) {
-    set<string> non_empty_strings;
-    for (const string& str : strings) {
-        if (!str.empty()) {
-            non_empty_strings.insert(str);
-        }
-    }
-    return non_empty_strings;
-}
-
 enum class DocumentStatus {
     ACTUAL,
     IRRELEVANT,
@@ -83,19 +53,11 @@ public:
     template <typename StringContainer>
     explicit SearchServer(const StringContainer& stop_words)
         : stop_words_(MakeUniqueNonEmptyStrings(stop_words)) {
-        for (const string& word : stop_words) {
-            if (!IsValidWord(word)) {
-                throw invalid_argument("Server initialisation - Incorrect stop words"s);
-            }
-        }
     }
 
     explicit SearchServer(const string& stop_words_text)
         : SearchServer(SplitIntoWords(stop_words_text))  // Invoke delegating constructor from string container
     {
-        if (!IsValidWord(stop_words_text)) {
-            throw invalid_argument("Server initialisation - Invalid stop words"s);
-        }
     }
 
     void AddDocument(int document_id, const string& document, DocumentStatus status, const vector<int>& ratings) {
@@ -126,33 +88,12 @@ public:
 
     template <typename DocumentPredicate>
     vector<Document> FindTopDocuments(const string& raw_query, DocumentPredicate document_predicate) const {
-        //Проверка на отсутсвие спец символов
-        if (!IsValidWord(raw_query)) {
-            throw invalid_argument("FindTopDocuments - Invalid query words"s);
-        }
-
-        //Проверка на отсутсвие двух последовательных минусов и минуса без слова
-        int query_size = static_cast<int>(raw_query.size());
-        for (int i = 0; i < query_size; ++i) {
-            if (raw_query[i] == '-') {
-                if ((i + 1) == query_size) {
-                    throw invalid_argument("FindTopDocuments - '-' is in the query end"s);
-                }
-                else if (raw_query[i + 1] == '-') {
-                    throw invalid_argument("FindTopDocuments - Double '-'"s);
-                }
-                else if (raw_query[i + 1] == ' ') {
-                    throw invalid_argument("FindTopDocuments - No word after '-'"s);
-                }
-            }
-        }
-
         const Query query = ParseQuery(raw_query);
         auto matched_documents = FindAllDocuments(query, document_predicate);
 
         sort(matched_documents.begin(), matched_documents.end(),
             [](const Document& lhs, const Document& rhs) {
-                if (abs(lhs.relevance - rhs.relevance) < 1e-6) {
+                if (abs(lhs.relevance - rhs.relevance) < RELEVANCE_ACCURACY) {
                     return lhs.rating > rhs.rating;
                 }
                 else {
@@ -179,28 +120,6 @@ public:
     }
 
     tuple<vector<string>, DocumentStatus> MatchDocument(const string& raw_query, int document_id) const {
-    
-        //Проверка на отсутсвие спец символов
-        if (!IsValidWord(raw_query)) {
-            throw invalid_argument("MatchDocument - Invalid query words"s);
-        }
-
-        //Проверка на отсутсвие двух последовательных минусов и минуса без слова
-        int query_size = static_cast<int>(raw_query.size());
-        for (int i = 0; i < query_size; ++i) {
-            if (raw_query[i] == '-') {
-                if ((i + 1) == query_size) {
-                    throw invalid_argument("MatchDocument - '-' is in the query end"s);
-                }
-                else if (raw_query[i + 1] == '-') {
-                    throw invalid_argument("MatchDocument - Double '-'"s);
-                }
-                else if (raw_query[i + 1] == ' ') {
-                    throw invalid_argument("MatchDocument - No word after '-'"s);
-                }
-            }
-        }
-
         const Query query = ParseQuery(raw_query);
         vector<string> matched_words;
         for (const string& word : query.plus_words) {
@@ -238,6 +157,52 @@ private:
     map<int, DocumentData> documents_;
     vector<int> documents_id_; //Контейнер, в котором содержится информация о порядке добавления документов
 
+    //Перенесено в приватный метод для оптимизации (выполнения замечаний ревью)
+    vector<string> SplitIntoWords(const string& text) const {
+        //Проверка на IsValidWord, которая требует, чтобы SplitIntoWords был приватным методом
+        if (!IsValidWord(text)) {
+            throw invalid_argument("Server initialisation - Invalid stop words"s);
+        }
+
+        vector<string> words;
+        string word;
+        for (const char c : text) {
+            if (c == ' ') {
+                if (!word.empty()) {
+                    words.push_back(word);
+                    word.clear();
+                }
+            }
+            else {
+                word += c;
+            }
+        }
+        if (!word.empty()) {
+            words.push_back(word);
+        }
+
+        return words;
+    }
+
+    //Перенесено в приватный метод для оптимизации (выполнения замечаний ревью)
+    template <typename StringContainer>
+    set<string> MakeUniqueNonEmptyStrings(const StringContainer& strings) const {
+        //Проверка слов в контейнере на IsValidWord, из-за которой осуществлен перенос в приватную область
+        for (const string& word : strings) {
+            if (!IsValidWord(word)) {
+                throw invalid_argument("Server initialisation - Incorrect stop words in the container"s);
+            }
+        }
+
+        set<string> non_empty_strings;
+        for (const string& str : strings) {
+            if (!str.empty()) {
+                non_empty_strings.insert(str);
+            }
+        }
+        return non_empty_strings;
+    }
+
     bool IsStopWord(const string& word) const {
         return stop_words_.count(word) > 0;
     }
@@ -260,13 +225,12 @@ private:
     }
 
     static int ComputeAverageRating(const vector<int>& ratings) {
+        //Алгоритм перенесен из предыдущего спринта
         if (ratings.empty()) {
             return 0;
         }
-        int rating_sum = 0;
-        for (const int rating : ratings) {
-            rating_sum += rating;
-        }
+        int rating_sum = accumulate(ratings.begin(), ratings.end(), 0);
+
         return rating_sum / static_cast<int>(ratings.size());
     }
 
@@ -292,6 +256,33 @@ private:
     };
 
     Query ParseQuery(const string& text) const {
+        //----Проверки из задания----
+        
+        //Проверка на отсутсвие спец символов
+        if (!IsValidWord(text)) {
+            throw invalid_argument("ParseQuery - Invalid query words"s);
+        }
+
+        //Проверка на отсутсвие двух последовательных минусов и минуса без слова
+        //Реализовано в ParseQuery, а не в ParseQueryWord, чтобы исключение срабатывало раньше,
+        //чем выполнялись ненужные в таком случае действия (создание контейнера query и Split into words)
+        int query_size = static_cast<int>(text.size());
+        for (int i = 0; i < query_size; ++i) {
+            if (text[i] == '-') {
+                if ((i + 1) == query_size) {
+                    throw invalid_argument("ParseQuery - '-' is in the query end"s);
+                }
+                else if (text[i + 1] == '-') {
+                    throw invalid_argument("ParseQuery - Double '-'"s);
+                }
+                else if (text[i + 1] == ' ') {
+                    throw invalid_argument("ParseQuery - No word after '-'"s);
+                }
+            }
+        }
+        
+        //----Конец проверок из задания
+
         Query query;
         for (const string& word : SplitIntoWords(text)) {
             const QueryWord query_word = ParseQueryWord(word);
@@ -383,6 +374,15 @@ int main() {
 
     char faulty_char = 28;
     string faulty_string = faulty_char + string("кот"s);
+    vector<string> faulty_container = { "cat"s, faulty_string, "dog"s };
+
+    //Проверка инициализации search server
+    {
+        TRY_TEST(SearchServer search_server1(faulty_string));
+
+        vector<string> faulty_container = { "cat"s, faulty_string, "dog"s };
+        TRY_TEST(SearchServer search_server1(faulty_container));
+    }
     //Проверка GetId
     {
         TRY_TEST(search_server.GetDocumentId(1));
