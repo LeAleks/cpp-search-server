@@ -61,12 +61,6 @@ public:
     }
 
     void AddDocument(int document_id, const string& document, DocumentStatus status, const vector<int>& ratings) {
-
-        //Проверка на спец символы
-        if (!IsValidWord(document)) {
-            throw invalid_argument("AddDocument - Invalid words in the document"s);
-        }
-
         //Проверка на неотрицательный id
         if (document_id < 0) {
             throw invalid_argument("AddDocument - Document id < 0"s);
@@ -161,7 +155,7 @@ private:
     vector<string> SplitIntoWords(const string& text) const {
         //Проверка на IsValidWord, которая требует, чтобы SplitIntoWords был приватным методом
         if (!IsValidWord(text)) {
-            throw invalid_argument("Server initialisation - Invalid stop words"s);
+            throw invalid_argument("SplitIntoWords - Invalid text"s);
         }
 
         vector<string> words;
@@ -256,13 +250,6 @@ private:
     };
 
     Query ParseQuery(const string& text) const {
-        //----Проверки из задания----
-        
-        //Проверка на отсутсвие спец символов
-        if (!IsValidWord(text)) {
-            throw invalid_argument("ParseQuery - Invalid query words"s);
-        }
-
         //Проверка на отсутсвие двух последовательных минусов и минуса без слова
         //Реализовано в ParseQuery, а не в ParseQueryWord, чтобы исключение срабатывало раньше,
         //чем выполнялись ненужные в таком случае действия (создание контейнера query и Split into words)
@@ -280,8 +267,6 @@ private:
                 }
             }
         }
-        
-        //----Конец проверок из задания
 
         Query query;
         for (const string& word : SplitIntoWords(text)) {
