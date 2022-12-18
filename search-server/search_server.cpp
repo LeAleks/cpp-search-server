@@ -18,12 +18,16 @@ void SearchServer::AddDocument(int document_id, const string& document, Document
     }
     const auto words = SplitIntoWordsNoStop(document);
 
+    //–асчет частоты слова и добавление ее в словари
     const double inv_word_count = 1.0 / words.size();
+    map<string, double>& words_in_doc = documents_to_word_freqs_[document_id];
     for (const string& word : words) {
         word_to_document_freqs_[word][document_id] += inv_word_count;
+        words_in_doc[word] += inv_word_count;
     }
+
     documents_.emplace(document_id, DocumentData{ ComputeAverageRating(ratings), status });
-    document_ids_.push_back(document_id);
+    document_ids_.insert(document_id);
 }
 
 vector<Document> SearchServer::FindTopDocuments(const string& raw_query, DocumentStatus status) const {
@@ -41,8 +45,17 @@ int SearchServer::GetDocumentCount() const {
     return documents_.size();
 }
 
-int SearchServer::GetDocumentId(int index) const {
-    return document_ids_.at(index);
+//Ќужно убрать и заменить на begin & end
+//int SearchServer::GetDocumentId(int index) const {
+//    return document_ids_.at(index);
+//}
+
+std::set<int>::iterator SearchServer::begin() {
+    return document_ids_.begin();
+}
+
+std::set<int>::iterator SearchServer::end() {
+    return document_ids_.end();
 }
 
 tuple<vector<string>, DocumentStatus> SearchServer::MatchDocument(const string& raw_query, int document_id) const {
@@ -67,6 +80,23 @@ tuple<vector<string>, DocumentStatus> SearchServer::MatchDocument(const string& 
         }
     }
     return { matched_words, documents_.at(document_id).status };
+}
+
+const map<string, double>& SearchServer::GetWordFrequencies(int document_id) const {
+    if (documents_to_word_freqs_.count(document_id) == 0) {
+        return empty_map_;
+    }
+
+    return documents_to_word_freqs_.at(document_id);
+}
+
+void SearchServer::RemoveDocument(int document_id) {
+    document_ids_.erase(document_id);
+    documents_.erase(document_id);
+    documents_to_word_freqs_.erase(document_id);
+    for (auto& [word, documents] : word_to_document_freqs_) {
+        documents.erase(document_id);
+    }
 }
 
 //private
@@ -143,3 +173,5 @@ SearchServer::Query SearchServer::ParseQuery(const string& text) const {
 double SearchServer::ComputeWordInverseDocumentFreq(const string& word) const {
     return log(GetDocumentCount() * 1.0 / word_to_document_freqs_.at(word).size());
 }
+
+
