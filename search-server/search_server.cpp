@@ -83,6 +83,8 @@ tuple<vector<string>, DocumentStatus> SearchServer::MatchDocument(const string& 
 }
 
 const map<string, double>& SearchServer::GetWordFrequencies(int document_id) const {
+    //Пустой словарь для выполения условия задания по возвращению ссылки на пустой map
+    static map<string, double> empty_map_;
     if (documents_to_word_freqs_.count(document_id) == 0) {
         return empty_map_;
     }
@@ -91,12 +93,13 @@ const map<string, double>& SearchServer::GetWordFrequencies(int document_id) con
 }
 
 void SearchServer::RemoveDocument(int document_id) {
+    for (auto& [word, freq] : documents_to_word_freqs_.at(document_id)) {
+        word_to_document_freqs_.at(word).erase(document_id);
+    }
+
     document_ids_.erase(document_id);
     documents_.erase(document_id);
     documents_to_word_freqs_.erase(document_id);
-    for (auto& [word, documents] : word_to_document_freqs_) {
-        documents.erase(document_id);
-    }
 }
 
 //private

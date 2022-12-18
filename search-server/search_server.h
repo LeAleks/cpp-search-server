@@ -38,7 +38,7 @@ public:
     void RemoveDocument(int document_id);
 
 private:
-    //structs
+    // --- structs ---
     struct DocumentData {
         int rating;
         DocumentStatus status;
@@ -53,15 +53,25 @@ private:
         std::set<std::string> minus_words;
     };
 
-    //variables
-    const std::set<std::string> stop_words_;                                //Список стоп-слов
-    std::map<std::string, std::map<int, double>> word_to_document_freqs_;   //Словарь слов: слово, (номер документа, частота слова в документе)
-    std::map<int, DocumentData> documents_;                                 //Словарь документов: номер документа св-ва
-    std::set<int> document_ids_;                                            //Сортированный спиок документов. Указывается при добавлении документа (в прошлом был vector и указывал порядок добавления)
-    std::map<int, std::map<std::string, double>> documents_to_word_freqs_;  //Словарь документов: номер документа, (слово, частота слова в документе)
-    std::map<std::string, double> empty_map_;                               //Пустой словарь для выполения условия задания по возвращению ссылки на пустой map, так как в других словарях нет вложенных пустых с нужным id
+    // --- variables ---
 
-    //methods
+    //Список стоп-слов
+    const std::set<std::string> stop_words_;
+    
+    //Словарь слов: слово, (номер документа, частота слова в документе)
+    std::map<std::string, std::map<int, double>> word_to_document_freqs_;
+    
+    //Словарь документов: номер документа св-ва
+    std::map<int, DocumentData> documents_;
+    
+    //Сортированный спиок документов. Указывается при добавлении документа
+    //(в прошлом был vector и указывал порядок добавления)
+    std::set<int> document_ids_;
+
+    //Словарь документов: номер документа, (слово, частота слова в документе)
+    std::map<int, std::map<std::string, double>> documents_to_word_freqs_;
+ 
+    // --- methods ---
 
     bool IsStopWord(const std::string& word) const;
     static bool IsValidWord(const std::string& word);

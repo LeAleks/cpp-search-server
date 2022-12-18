@@ -4,36 +4,25 @@ using namespace std;
 
 void RemoveDuplicates(SearchServer& search_server, ostream& out) {
     set<int> duplicates_id; //Список id дубликатов
-    auto range_start = search_server.begin(); //Итератор начала перебора документов
+    vector<set<string>> unique_sets_of_words;
 
-    for (auto id_0 : search_server) {
-        //Составлем список слов для документа 0
-        set<string> id_0_words;
-        for (auto& [word, id] : search_server.GetWordFrequencies(id_0)) {
-            id_0_words.insert(word);
+    for (int doc_id : search_server) {
+        //Составляем список слов документа
+        set<string> id_words;
+        for (auto& [word, id] : search_server.GetWordFrequencies(doc_id)) {
+            id_words.insert(word);
         }
 
-        //Проходим по другим документам
-        for (auto doc_it = range_start; doc_it != search_server.end(); ++doc_it) {
-            int id_n = *doc_it;
-            //Пропускаем тот же id, и проверяем, что id уже не был включен в удаление
-            if ((id_n == id_0) || duplicates_id.count(id_n)) {
-                continue;
-            }
-
-            //Составлем список слов для документа n
-            set<string> id_n_words;
-            for (auto& [word, id] : search_server.GetWordFrequencies(id_n)) {
-                id_n_words.insert(word);
-            }
-
-            //Сравниваем два списка
-            bool duplicate = id_0_words == id_n_words;
-            if (duplicate) {
-                duplicates_id.insert(id_n);
-            }
+        //Проверяем, что такого списка еще не было
+        bool not_unique = count(unique_sets_of_words.begin(), unique_sets_of_words.end(), id_words);
+ 
+        //Если был, то документ - дубликат. Если нет - то добавляем спсиок слов как уникальный
+        if (not_unique) {
+            duplicates_id.insert(doc_id);
         }
-        ++range_start;
+        else {
+            unique_sets_of_words.push_back(id_words);
+        }
     }
 
     //Удалям документы по списку дубликатов
