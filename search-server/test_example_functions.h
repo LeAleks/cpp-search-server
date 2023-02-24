@@ -10,8 +10,14 @@ std::ostream& operator<<(std::ostream& out, const DocumentStatus& status);
 //Перегруз << для вывода map<string, int>
 std::ostream& operator<<(std::ostream& out, const std::map<std::string, int>& container);
 
+//Перегруз << для вывода map<string_view, int>
+std::ostream& operator<<(std::ostream& out, const std::map<std::string_view, int>& container);
+
 //Перегруз << для вывода map<string, double>
 std::ostream& operator<<(std::ostream& out, const std::map<std::string, double>& container);
+
+//Перегруз << для вывода map<string_view, double>
+std::ostream& operator<<(std::ostream& out, const std::map<std::string_view, double>& container);
 
 //Перегруз << для вывода vector
 template<typename t>
@@ -55,40 +61,6 @@ void RunTestImpl(const T& t, const std::string& func_name);
 
 
 // -------- Начало модульных тестов поисковой системы ----------
-
-//Тест проверяет, что новый документ добавлен и находится по ключевым словам из него (кроме стоп и минус слов)
-void TestAddingDocument();
-
-// Тест проверяет, что поисковая система исключает стоп-слова при добавлении документов
-void TestExcludeStopWordsFromAddedDocumentContent();
-
-//Тест проверяет, что поисковая система корректно удаляет докуместы, сожержащие минус-слова из поиска
-void TestExludeDocumentsWithMinusWords();
-
-//Тест проверяет, что поиск подходящих документов работает корректно
-void TestMatchingDocuments();
-
-//Тест проверяет правильность рассчета релевантности
-void TestRelevanceCalculation();
-
-//Тест проверяет, что relevance рассчитывется корректно, и документы сортируются в порядке неубывания relevance
-void TestRelevanceSorting();
-
-//Тест проверяет, что работает фильтрация найденных документов по предикату, заданным пользователем
-void TestFilteringByPredicat();
-
-//Тест проверяет, что поисковая система корректно фильтрует найденные документы по статусу в запросе
-void TestMatchingStatus();
-
-//Тест проверяет, что поисковая система корректно выводит информацию о частоте слов в документе
-void TestGetWordFrequencies();
-
-//Тест проверяет, что поисковая система корректно удаляет документ по id
-void TestGetRemoveDocument();
-
-//Тест проверяет, что поисковая система корректно удаляет документ дубликаты документов
-void TestRemoveDuplicate();
-
 
 // Функция TestSearchServer является точкой входа для запуска тестов
 void TestSearchServer();

@@ -6,6 +6,9 @@
 #include <iostream>
 #include <numeric>
 #include <cmath>
+#include <execution>
+#include <functional>
+#include <string_view>
 
 using namespace std;
 
@@ -48,6 +51,23 @@ ostream& operator<<(ostream& out, const map<string, int>& container) {
     return out;
 }
 
+//Перегруз << для вывода map<string_view, int>
+ostream& operator<<(ostream& out, const map<string_view, int>& container) {
+    out << "{"s;
+    bool is_first = true;
+    for (const auto& [name, age] : container) {
+        string name_string{ name };
+        if (is_first) {
+            cout << name_string << ": " << age;
+            is_first = false;
+            continue;
+        }
+        out << ", " << name_string << ": " << age;
+    }
+    cout << "}"s;
+    return out;
+}
+
 //Перегруз << для вывода map<string, double>
 ostream& operator<<(ostream& out, const map<string, double>& container) {
     out << "{"s;
@@ -59,6 +79,23 @@ ostream& operator<<(ostream& out, const map<string, double>& container) {
             continue;
         }
         out << ", " << name << ": " << age;
+    }
+    cout << "}"s;
+    return out;
+}
+
+//Перегруз << для вывода map<string_view, double>
+ostream& operator<<(ostream& out, const map<string_view, double>& container) {
+    out << "{"s;
+    bool is_first = true;
+    for (const auto& [name, age] : container) {
+        string name_string{ name };
+        if (is_first) {
+            cout << name_string << ": " << age;
+            is_first = false;
+            continue;
+        }
+        out << ", " << name_string << ": " << age;
     }
     cout << "}"s;
     return out;
@@ -205,18 +242,18 @@ void TestMatchingDocuments() {
     const int doc1_id = 24;
     const string content1 = "dog under water"s;
     const vector<int> ratings1 = { 3, 1, 2 };
-
+    
     // Сначала убеждаемся, что поиск слова, не входящего в список стоп-слов или минус слов,
     // находит нужный документ и выводит все совпадающие слова из запроса и верный статус
     {
-        SearchServer server(""s);
+        SearchServer server(""sv);
         server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
         const auto [matched_words, status] = server.MatchDocument("cat lost in a dark city", doc0_id);
-        vector<string> right_order = { "cat"s, "city"s, "in"s };
+        vector<string_view> right_order = { "cat"sv, "city"sv, "in"sv };
         ASSERT_EQUAL_HINT(matched_words, right_order, "Incorrect order of found words"s);
         ASSERT_EQUAL(status, DocumentStatus::ACTUAL);
     }
-
+    
     //Проверяем, что документ, не содержащий слов из запроса, не будет выведен (возвращает пустой список слов)
     {
         SearchServer server(""s);
@@ -225,7 +262,7 @@ void TestMatchingDocuments() {
         ASSERT_EQUAL_HINT(matched_words.size(), 0u, "Document without query words should be excluded from the search responce"s);
         ASSERT_EQUAL(status, DocumentStatus::ACTUAL);
     }
-
+    
     //Проверяем, что наличие минус слова возвращает пустой список слов
     {
         SearchServer server(""s);
@@ -234,19 +271,62 @@ void TestMatchingDocuments() {
         ASSERT_EQUAL_HINT(matched_words.size(), 0u, "Document with minus words should be excluded from the search responce"s);
         ASSERT_EQUAL(status, DocumentStatus::ACTUAL);
     }
-
+    
     //Поверяем, что наличие минус слова не влияет на вывод документа, не содеращего минус слово
     {
         SearchServer server(""s);
         server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
         server.AddDocument(doc1_id, content1, DocumentStatus::ACTUAL, ratings1);
         const auto [matched_words, status] = server.MatchDocument("city dog -cat", doc1_id);
-        vector<string> right_order = { "dog"s };
+        vector<string_view> right_order = { "dog"sv };
         ASSERT_EQUAL_HINT(matched_words, right_order, "Incorrect order of found words"s);
         ASSERT_EQUAL(status, DocumentStatus::ACTUAL);
     }
-}
+    
 
+    // ---- Проверка параллельного метода -----
+
+    // Сначала убеждаемся, что поиск слова, не входящего в список стоп-слов или минус слов,
+    // находит нужный документ и выводит все совпадающие слова из запроса и верный статус
+    {
+        SearchServer server(""s);
+        server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
+        const auto [matched_words, status] = server.MatchDocument(execution::par, "cat lost in a dark city", doc0_id);
+        vector<string_view> right_order = { "cat"sv, "city"sv, "in"sv };
+        ASSERT_EQUAL_HINT(matched_words, right_order, "Incorrect order of found words"s);
+        ASSERT_EQUAL(status, DocumentStatus::ACTUAL);
+    }
+    
+    //Проверяем, что документ, не содержащий слов из запроса, не будет выведен (возвращает пустой список слов)
+    {
+        SearchServer server(""s);
+        server.AddDocument(doc1_id, content1, DocumentStatus::ACTUAL, ratings1);
+        const auto [matched_words, status] = server.MatchDocument(execution::par, "cat lost in a dark city", doc1_id);
+        ASSERT_EQUAL_HINT(matched_words.size(), 0u, "Document without query words should be excluded from the search responce"s);
+        ASSERT_EQUAL(status, DocumentStatus::ACTUAL);
+    }
+    
+    //Проверяем, что наличие минус слова возвращает пустой список слов
+    {
+        SearchServer server(""s);
+        server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
+        const auto [matched_words, status] = server.MatchDocument(execution::par, "cat lost in a dark -city", doc0_id);
+        ASSERT_EQUAL_HINT(matched_words.size(), 0u, "Document with minus words should be excluded from the search responce"s);
+        ASSERT_EQUAL(status, DocumentStatus::ACTUAL);
+    }
+    
+    //Поверяем, что наличие минус слова не влияет на вывод документа, не содеращего минус слово
+    {
+        SearchServer server(""s);
+        server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
+        server.AddDocument(doc1_id, content1, DocumentStatus::ACTUAL, ratings1);
+        const auto [matched_words, status] = server.MatchDocument(execution::par, "city dog -cat", doc1_id);
+        vector<string_view> right_order = { "dog"sv };
+        ASSERT_EQUAL_HINT(matched_words, right_order, "Incorrect order of found words"s);
+        ASSERT_EQUAL(status, DocumentStatus::ACTUAL);
+    }
+
+}
 
 //Тест проверяет правильность рассчета релевантности
 void TestRelevanceCalculation() {
@@ -379,6 +459,7 @@ void TestMatchingStatus() {
 }
 
 //Тест проверяет, что поисковая система корректно выводит информацию о частоте слов в документе
+
 void TestGetWordFrequencies() {
     //Задаем тело документа
     const int doc_id = 42;
@@ -391,10 +472,10 @@ void TestGetWordFrequencies() {
 
     //Выводим результат и проверяем
     auto answer = server.GetWordFrequencies(42);
-    map<string, double> right_answer{ {"cat"s, 0.4}, { "fat"s, 0.2 }, { "fluffy"s, 0.2 }, { "house"s, 0.2 } };
+    map<string_view, double> right_answer{ {"cat"sv, 0.4}, { "fat"sv, 0.2 }, { "fluffy"sv, 0.2 }, { "house"sv, 0.2 } };
     ASSERT_EQUAL_HINT(answer, right_answer, "Incorrect word list or word frequency in the document");
 
-};
+}
 
 //Тест проверяет, что поисковая система корректно удаляет документ по id
 void TestGetRemoveDocument() {
@@ -411,39 +492,83 @@ void TestGetRemoveDocument() {
     const string content2 = "dogs afraid of the black cat"s;
     const vector<int> ratings2 = { 1, 2, 3 };
 
-    //Создаем сервер
-    SearchServer server("in the"s);
-    server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
-    server.AddDocument(doc1_id, content1, DocumentStatus::ACTUAL, ratings1);
-    server.AddDocument(doc2_id, content2, DocumentStatus::ACTUAL, ratings2);
-
-    //Удаляем второй документ
-    server.RemoveDocument(2);
-
+    // Последовательный метод
     {
-        //проверяем, что остались верные id
-        set<int> right_answer{ 1, 3 };
-        set<int> answer(server.begin(), server.end());
-        ASSERT_EQUAL_HINT(answer, right_answer, "Incorrect id list");
-    }
-    
-    {
-        //проверяем, что остались верные id
-        set<int> right_answer{ 1, 3 };
-        set<int> answer(server.begin(), server.end());
-        ASSERT_EQUAL_HINT(answer, right_answer, "Incorrect id list");
+        //Создаем сервер
+        SearchServer server("in the"s);
+        server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
+        server.AddDocument(doc1_id, content1, DocumentStatus::ACTUAL, ratings1);
+        server.AddDocument(doc2_id, content2, DocumentStatus::ACTUAL, ratings2);
+
+        //Удаляем второй документ
+        server.RemoveDocument(2);
+
+        {
+            //проверяем, что остались верные id
+            set<int> right_answer{ 1, 3 };
+            set<int> answer(server.begin(), server.end());
+            ASSERT_EQUAL_HINT(answer, right_answer, "Incorrect id list");
+        }
+
+        {
+            //проверяем, что остались верные id
+            set<int> right_answer{ 1, 3 };
+            set<int> answer(server.begin(), server.end());
+            ASSERT_EQUAL_HINT(answer, right_answer, "Incorrect id list");
+        }
+
+        {
+            //проверяем, что по удаленному id при запросе частоты слов возвращается пустой словарь
+            ASSERT_HINT(server.GetWordFrequencies(2).empty(), "Returning map isn't empty"s);
+        }
+
+        {
+            //проверка, что поиск по уинкальному слову для документа также его не найдет
+            ASSERT_HINT(server.FindTopDocuments("countryside"s).empty(), "Returning map isn't empty"s);
+
+        }
+
     }
 
+
+    // Параллельный метод
     {
-        //проверяем, что по удаленному id при запросе частоты слов возвращается пустой словарь
-        ASSERT_HINT(server.GetWordFrequencies(2).empty(), "Returning map isn't empty"s);
+        //Создаем сервер
+        SearchServer server("in the"s);
+        server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
+        server.AddDocument(doc1_id, content1, DocumentStatus::ACTUAL, ratings1);
+        server.AddDocument(doc2_id, content2, DocumentStatus::ACTUAL, ratings2);
+
+        //Удаляем второй документ
+        server.RemoveDocument(execution::par, 2);
+
+        {
+            //проверяем, что остались верные id
+            set<int> right_answer{ 1, 3 };
+            set<int> answer(server.begin(), server.end());
+            ASSERT_EQUAL_HINT(answer, right_answer, "Incorrect id list");
+        }
+
+        {
+            //проверяем, что остались верные id
+            set<int> right_answer{ 1, 3 };
+            set<int> answer(server.begin(), server.end());
+            ASSERT_EQUAL_HINT(answer, right_answer, "Incorrect id list");
+        }
+
+        {
+            //проверяем, что по удаленному id при запросе частоты слов возвращается пустой словарь
+            ASSERT_HINT(server.GetWordFrequencies(2).empty(), "Returning map isn't empty"s);
+        }
+
+        {
+            //проверка, что поиск по уинкальному слову для документа также его не найдет
+            ASSERT_HINT(server.FindTopDocuments("countryside"s).empty(), "Returning map isn't empty"s);
+
+        }
+
     }
 
-    {
-        //проверка, что поиск по уинкальному слову для документа также его не найдет
-        ASSERT_HINT(server.FindTopDocuments("countryside"s).empty(), "Returning map isn't empty"s);
-
-    }
 }
 
 //Тест проверяет, что поисковая система корректно удаляет документ дубликаты документов

@@ -1,16 +1,22 @@
 #include "remove_duplicates.h"
+#include <string_view>
 
 using namespace std;
 
 void RemoveDuplicates(SearchServer& search_server, ostream& out) {
-    set<int> duplicates_id; //Список id дубликатов
+    //Список id дубликатов
+    set<int> duplicates_id;
+
+    // Список уникальных наборов слов
     vector<set<string>> unique_sets_of_words;
 
+    // Проходим по списку документов в базе
     for (int doc_id : search_server) {
         //Составляем список слов документа
         set<string> id_words;
         for (auto& [word, id] : search_server.GetWordFrequencies(doc_id)) {
-            id_words.insert(word);
+            string word_string{ word };
+            id_words.insert(word_string);
         }
 
         //Проверяем, что такого списка еще не было
