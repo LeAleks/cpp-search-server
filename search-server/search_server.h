@@ -35,30 +35,47 @@ public:
     // Добавление документа на сервер
     void AddDocument(int document_id, std::string_view document, DocumentStatus status, const std::vector<int>& ratings);
 
+
     // Поиск и вывод первых MAX_RESULT_DOCUMENT_COUNT наиболее релевантных документов 
+
+    // Однопоточная версия FindTopDocuments
     template <typename DocumentPredicate>
     std::vector<Document> FindTopDocuments(std::string_view raw_query, DocumentPredicate document_predicate) const;
     std::vector<Document> FindTopDocuments(std::string_view raw_query, DocumentStatus status) const;
     std::vector<Document> FindTopDocuments(std::string_view raw_query) const;
 
-
-    // Выбор варианта FindTopDocuments
-
-    template <typename ExecutionPolicy, typename DocumentPredicate>
+    // Многопоточная версия FindTopDocuments с последовательным параметром
+    template <typename DocumentPredicate>
     std::vector<Document> FindTopDocuments(
-        const ExecutionPolicy& policy,
+        const std::execution::sequenced_policy& policy,
         std::string_view raw_query,
         DocumentPredicate document_predicate) const;
 
-    template <typename ExecutionPolicy>
     std::vector<Document> FindTopDocuments(
-        const ExecutionPolicy& policy,
+        const std::execution::sequenced_policy& policy,
         std::string_view raw_query,
         DocumentStatus status) const;
 
-    template <typename ExecutionPolicy>
     std::vector<Document> FindTopDocuments(
-        const ExecutionPolicy& policy,
+        const std::execution::sequenced_policy& policy,
+        std::string_view raw_query) const;
+
+
+    // Многопоточная реализация FindTopDocuments с параллельным параметром   
+    
+    template <typename DocumentPredicate>
+    std::vector<Document> FindTopDocuments(
+        const std::execution::parallel_policy& policy,
+        std::string_view raw_query,
+        DocumentPredicate document_predicate) const;
+
+    std::vector<Document> FindTopDocuments(
+        const std::execution::parallel_policy& policy,
+        std::string_view raw_query,
+        DocumentStatus status) const;
+
+    std::vector<Document> FindTopDocuments(
+        const std::execution::parallel_policy& policy,
         std::string_view raw_query) const;
 
 
@@ -156,10 +173,17 @@ private:
     template <typename DocumentPredicate>
     std::vector<Document> FindAllDocuments(Query& query, DocumentPredicate document_predicate) const;
 
-    // Многопоточная версия FindAllDocuments
-    template <typename ExecutionPolicy, typename DocumentPredicate>
+    // Многопоточная версия FindAllDocuments с последовательным параметром
+    template <typename DocumentPredicate>
     std::vector<Document> FindAllDocuments(
-        const ExecutionPolicy&policy,
+        const std::execution::sequenced_policy& policy,
+        Query& query,
+        DocumentPredicate document_predicate) const;
+
+    // Многопоточная версия FindAllDocuments
+    template <typename DocumentPredicate>
+    std::vector<Document> FindAllDocuments(
+        const std::execution::parallel_policy& policy,
         Query& query,
         DocumentPredicate document_predicate) const;
 };
@@ -213,24 +237,23 @@ std::vector<Document> SearchServer::FindTopDocuments(std::string_view raw_query,
     return matched_documents;
 }
 
-// Выбор варианта версии FindTopDocuments
 
-// Многопоточная реализация FindTopDocuments
-template <typename ExecutionPolicy, typename DocumentPredicate>
+// Многопоточная версия FindTopDocuments с последовательным параметром
+template <typename DocumentPredicate>
 std::vector<Document> SearchServer::FindTopDocuments(
-    const ExecutionPolicy& policy,
+    const std::execution::sequenced_policy& policy,
+    std::string_view raw_query,
+    DocumentPredicate document_predicate) const{
+    return FindTopDocuments(raw_query, document_predicate);
+}
+
+
+// Многопоточная реализация FindTopDocuments с параллельным параметром
+template <typename DocumentPredicate>
+std::vector<Document> SearchServer::FindTopDocuments(
+    const std::execution::parallel_policy& policy,
     std::string_view raw_query,
     DocumentPredicate document_predicate) const {
-
-    // Какого типа политика пришла
-    const bool is_parallel = std::is_same_v<std::decay_t<ExecutionPolicy>, std::execution::parallel_policy>;
-
-    // Если не параллельная, то переходим к однопоточной версии
-    if (!is_parallel) {
-        return FindTopDocuments(raw_query, document_predicate);
-        
-    }
-
 
     // Выводит структуру Query (2xvector<string_view>)
     auto query = ParseQuery(raw_query);
@@ -261,42 +284,6 @@ std::vector<Document> SearchServer::FindTopDocuments(
     }
 
     return matched_documents;
-}
-
-template <typename ExecutionPolicy>
-std::vector<Document> SearchServer::FindTopDocuments(
-    const ExecutionPolicy& policy,
-    std::string_view raw_query,
-    DocumentStatus status) const {
-
-    // Задаем предикат-лямбду по статусу
-    auto predicate = [status](int document_id, DocumentStatus document_status, int rating) {return document_status == status; };
-
-    // Какого типа политика пришла
-    const bool is_parallel = std::is_same_v<std::decay_t<ExecutionPolicy>, std::execution::parallel_policy>;
-
-    if (is_parallel) {
-        return FindTopDocuments(policy, raw_query, predicate);
-    }
-    else {
-        return FindTopDocuments(raw_query, predicate);
-    }
-}
-
-template <typename ExecutionPolicy>
-std::vector<Document> SearchServer::FindTopDocuments(
-    const ExecutionPolicy& policy,
-    std::string_view raw_query) const {
-
-    // Какого типа политика пришла
-    const bool is_parallel = std::is_same_v<std::decay_t<ExecutionPolicy>, std::execution::parallel_policy>;
-
-    if (is_parallel) {
-        return FindTopDocuments(policy, raw_query, DocumentStatus::ACTUAL);
-    }
-    else {
-        return FindTopDocuments(raw_query, DocumentStatus::ACTUAL);
-    }
 }
 
 
@@ -363,10 +350,20 @@ std::vector<Document> SearchServer::FindAllDocuments(Query& query, DocumentPredi
     return matched_documents;
 }
 
-// Многопоточная версия FindAllDocuments
-template <typename ExecutionPolicy, typename DocumentPredicate>
+// Многопоточная версия FindAllDocuments с последовательным параметром
+template <typename DocumentPredicate>
 std::vector<Document> SearchServer::FindAllDocuments(
-    const ExecutionPolicy& policy,
+    const std::execution::sequenced_policy& policy,
+    Query& query,
+    DocumentPredicate document_predicate) const {
+
+    return FindAllDocuments(query, document_predicate);
+}
+
+// Многопоточная версия FindAllDocuments с параллельным параметром
+template <typename DocumentPredicate>
+std::vector<Document> SearchServer::FindAllDocuments(
+    const std::execution::parallel_policy& policy,
     Query& query,
     DocumentPredicate document_predicate) const {
 

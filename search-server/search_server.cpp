@@ -37,6 +37,9 @@ void SearchServer::AddDocument(int document_id, string_view document, DocumentSt
     document_ids_.insert(document_id);
 }
 
+
+// Однопоточная версия FindTopDocuments
+
 vector<Document> SearchServer::FindTopDocuments(string_view raw_query, DocumentStatus status) const {
     // Задаем предикат-лямбду по статусу
     auto predicate = [status](int document_id, DocumentStatus document_status, int rating) {return document_status == status; };
@@ -45,7 +48,51 @@ vector<Document> SearchServer::FindTopDocuments(string_view raw_query, DocumentS
 }
 
 vector<Document> SearchServer::FindTopDocuments(string_view raw_query) const {
+   return FindTopDocuments(raw_query, DocumentStatus::ACTUAL);
+}
+
+
+// Многопоточная версия FindTopDocuments с последовательным параметром
+
+std::vector<Document> SearchServer::FindTopDocuments(
+    const std::execution::sequenced_policy& policy,
+    std::string_view raw_query,
+    DocumentStatus status) const {
+
+    // Задаем предикат-лямбду по статусу
+    auto predicate = [status](int document_id, DocumentStatus document_status, int rating) {return document_status == status; };
+
+    return FindTopDocuments(raw_query, predicate);
+}
+
+
+std::vector<Document> SearchServer::FindTopDocuments(
+    const std::execution::sequenced_policy& policy,
+    std::string_view raw_query) const {
+
     return FindTopDocuments(raw_query, DocumentStatus::ACTUAL);
+}
+
+
+// Многопоточная реализация FindTopDocuments с параллельным параметром
+
+std::vector<Document> SearchServer::FindTopDocuments(
+    const std::execution::parallel_policy& policy,
+    std::string_view raw_query,
+    DocumentStatus status) const {
+
+    // Задаем предикат-лямбду по статусу
+    auto predicate = [status](int document_id, DocumentStatus document_status, int rating) {return document_status == status; };
+
+    return FindTopDocuments(policy, raw_query, predicate);
+}
+
+
+std::vector<Document> SearchServer::FindTopDocuments(
+    const std::execution::parallel_policy& policy,
+    std::string_view raw_query) const {
+
+    return FindTopDocuments(policy, raw_query, DocumentStatus::ACTUAL);
 }
 
 int SearchServer::GetDocumentCount() const {

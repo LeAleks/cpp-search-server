@@ -60,7 +60,7 @@ int main() {
         //BenchmarkProcessQueries();
         //BenchmarkRemoveDocument();
         //BenchmarkMatchDocument();
-        //BenchmarkFindTopDocuments();
+        BenchmarkFindTopDocuments();
     }
     return 0;
 }
