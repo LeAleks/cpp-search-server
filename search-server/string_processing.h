@@ -5,17 +5,17 @@
 #include <functional>
 #include <string_view>
 
-// Разбивка строки на отдельные слова
+// вЂ“Р°Р·Р±РёРІРєР° СЃС‚СЂРѕРєРё РЅР° РѕС‚РґРµР»СЊРЅС‹Рµ СЃР»РѕРІР°
 std::vector<std::string_view> SplitIntoWords(std::string_view text);
 
-// Удаление пустых ячеек массива, и добаление их в set для обеспечения уникальности
+// вЂќРґР°Р»РµРЅРёРµ РїСѓСЃС‚С‹С… В¤С‡РµРµРє РјР°СЃСЃРёРІР°, Рё РґРѕР±Р°Р»РµРЅРёРµ РёС… РІ set РґР»В¤ РѕР±РµСЃРїРµС‡РµРЅРёВ¤ СѓРЅРёРєР°Р»СЊРЅРѕСЃС‚Рё
 template <typename StringContainer>
 std::set<std::string, std::less<>> MakeUniqueNonEmptyStrings(StringContainer& strings){
-    // Список для возврата уникальных значений
+    // вЂ”РїРёСЃРѕРє РґР»В¤ РІРѕР·РІСЂР°С‚Р° СѓРЅРёРєР°Р»СЊРЅС‹С… Р·РЅР°С‡РµРЅРёР№
     std::set<std::string, std::less<>> non_empty_strings;
 
-    // Пропуск пустых ячеек из входного массива
-    // emplace позволяет преобразовать string_view в string без дополнитульных комманд
+    // С•СЂРѕРїСѓСЃРє РїСѓСЃС‚С‹С… В¤С‡РµРµРє РёР· РІС…РѕРґРЅРѕРіРѕ РјР°СЃСЃРёРІР°
+    // emplace РїРѕР·РІРѕР»В¤РµС‚ РїСЂРµРѕР±СЂР°Р·РѕРІР°С‚СЊ string_view РІ string Р±РµР· РґРѕРїРѕР»РЅРёС‚СѓР»СЊРЅС‹С… РєРѕРјРјР°РЅРґ
     for (auto& str : strings) {
         if (!str.empty()) {
             non_empty_strings.emplace(str);

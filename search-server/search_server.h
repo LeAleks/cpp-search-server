@@ -21,30 +21,30 @@ const size_t MAX_BUCKETS_DURING_SEARCH = 128;
 
 class SearchServer {
 public:
-    // Конструктор из строки стоп-слов string
+    // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РёР· СЃС‚СЂРѕРєРё СЃС‚РѕРї-СЃР»РѕРІ string
     SearchServer(const std::string& stop_words_text)
         : SearchServer(std::string_view(stop_words_text)){}
 
-    // Конструктор из указателя строки стоп-слов string-view
+    // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РёР· СѓРєР°Р·Р°С‚РµР»СЏ СЃС‚СЂРѕРєРё СЃС‚РѕРї-СЃР»РѕРІ string-view
     SearchServer(const std::string_view stop_words_text);
 
-    // Конструктор из массива стоп-слов
+    // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РёР· РјР°СЃСЃРёРІР° СЃС‚РѕРї-СЃР»РѕРІ
     template <typename StringContainer>
     SearchServer(const StringContainer& stop_words);
 
-    // Добавление документа на сервер
+    // Р”РѕР±Р°РІР»РµРЅРёРµ РґРѕРєСѓРјРµРЅС‚Р° РЅР° СЃРµСЂРІРµСЂ
     void AddDocument(int document_id, std::string_view document, DocumentStatus status, const std::vector<int>& ratings);
 
 
-    // Поиск и вывод первых MAX_RESULT_DOCUMENT_COUNT наиболее релевантных документов 
+    // РџРѕРёСЃРє Рё РІС‹РІРѕРґ РїРµСЂРІС‹С… MAX_RESULT_DOCUMENT_COUNT РЅР°РёР±РѕР»РµРµ СЂРµР»РµРІР°РЅС‚РЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ 
 
-    // Однопоточная версия FindTopDocuments
+    // РћРґРЅРѕРїРѕС‚РѕС‡РЅР°СЏ РІРµСЂСЃРёСЏ FindTopDocuments
     template <typename DocumentPredicate>
     std::vector<Document> FindTopDocuments(std::string_view raw_query, DocumentPredicate document_predicate) const;
     std::vector<Document> FindTopDocuments(std::string_view raw_query, DocumentStatus status) const;
     std::vector<Document> FindTopDocuments(std::string_view raw_query) const;
 
-    // Многопоточная версия FindTopDocuments с последовательным параметром
+    // РњРЅРѕРіРѕРїРѕС‚РѕС‡РЅР°СЏ РІРµСЂСЃРёСЏ FindTopDocuments СЃ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹Рј РїР°СЂР°РјРµС‚СЂРѕРј
     template <typename DocumentPredicate>
     std::vector<Document> FindTopDocuments(
         const std::execution::sequenced_policy& policy,
@@ -61,7 +61,7 @@ public:
         std::string_view raw_query) const;
 
 
-    // Многопоточная реализация FindTopDocuments с параллельным параметром   
+    // РњРЅРѕРіРѕРїРѕС‚РѕС‡РЅР°СЏ СЂРµР°Р»РёР·Р°С†РёСЏ FindTopDocuments СЃ РїР°СЂР°Р»Р»РµР»СЊРЅС‹Рј РїР°СЂР°РјРµС‚СЂРѕРј   
     
     template <typename DocumentPredicate>
     std::vector<Document> FindTopDocuments(
@@ -79,38 +79,38 @@ public:
         std::string_view raw_query) const;
 
 
-    // Вывод количества документов в базе
+    // Р’С‹РІРѕРґ РєРѕР»РёС‡РµСЃС‚РІР° РґРѕРєСѓРјРµРЅС‚РѕРІ РІ Р±Р°Р·Рµ
     int GetDocumentCount() const;
 
-    //Нужно убрать и заменить на begin & end
+    //РќСѓР¶РЅРѕ СѓР±СЂР°С‚СЊ Рё Р·Р°РјРµРЅРёС‚СЊ РЅР° begin & end
     //int GetDocumentId(int index) const;
     std::set<int>::iterator begin();
     std::set<int>::iterator end();
 
-    // Последовательная (однопоточная) версия MatchDocument
+    // РџРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅР°СЏ (РѕРґРЅРѕРїРѕС‚РѕС‡РЅР°СЏ) РІРµСЂСЃРёСЏ MatchDocument
     std::tuple<std::vector<std::string_view>, DocumentStatus> MatchDocument(std::string_view raw_query, int document_id) const;
 
-    // Последовательная (задано параметром) версия MatchDocument
+    // РџРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅР°СЏ (Р·Р°РґР°РЅРѕ РїР°СЂР°РјРµС‚СЂРѕРј) РІРµСЂСЃРёСЏ MatchDocument
     std::tuple<std::vector<std::string_view>, DocumentStatus> MatchDocument(
         const std::execution::sequenced_policy& policy,
         std::string_view raw_query,
         int document_id) const;
 
-    // Параллельная (многопоточная) версия MatchDocument
+    // РџР°СЂР°Р»Р»РµР»СЊРЅР°СЏ (РјРЅРѕРіРѕРїРѕС‚РѕС‡РЅР°СЏ) РІРµСЂСЃРёСЏ MatchDocument
     std::tuple<std::vector<std::string_view>, DocumentStatus> MatchDocument(
         const std::execution::parallel_policy& policy,
         std::string_view raw_query,
         int document_id) const;
 
-    // Вывод слов с частотой для документа
+    // Р’С‹РІРѕРґ СЃР»РѕРІ СЃ С‡Р°СЃС‚РѕС‚РѕР№ РґР»СЏ РґРѕРєСѓРјРµРЅС‚Р°
     const std::map<std::string_view, double>& GetWordFrequencies(int document_id) const;
 
     void RemoveDocument(int document_id);
 
-    // Многопоточная версия с однопоточным параметом
+    // РњРЅРѕРіРѕРїРѕС‚РѕС‡РЅР°СЏ РІРµСЂСЃРёСЏ СЃ РѕРґРЅРѕРїРѕС‚РѕС‡РЅС‹Рј РїР°СЂР°РјРµС‚РѕРј
     void RemoveDocument(const std::execution::sequenced_policy& policy, int document_id);
 
-    // Многопоточная версия с многопоточным параметом
+    // РњРЅРѕРіРѕРїРѕС‚РѕС‡РЅР°СЏ РІРµСЂСЃРёСЏ СЃ РјРЅРѕРіРѕРїРѕС‚РѕС‡РЅС‹Рј РїР°СЂР°РјРµС‚РѕРј
     void RemoveDocument(const std::execution::parallel_policy& policy, int document_id);
 
 
@@ -127,7 +127,7 @@ private:
         bool is_stop;
     };
 
-    // Запрос для работы в параллельном режиме
+    // Р—Р°РїСЂРѕСЃ РґР»СЏ СЂР°Р±РѕС‚С‹ РІ РїР°СЂР°Р»Р»РµР»СЊРЅРѕРј СЂРµР¶РёРјРµ
     struct Query {
         std::vector<std::string_view> plus_words;
         std::vector<std::string_view> minus_words;
@@ -135,20 +135,20 @@ private:
 
     // --- variables ---
 
-    // Список стоп-слов. Добавлен параметр less<> для работы со string_view
+    // РЎРїРёСЃРѕРє СЃС‚РѕРї-СЃР»РѕРІ. Р”РѕР±Р°РІР»РµРЅ РїР°СЂР°РјРµС‚СЂ less<> РґР»СЏ СЂР°Р±РѕС‚С‹ СЃРѕ string_view
     const std::set<std::string, std::less<>> stop_words_;
     
-    // Словарь слов: слово, (номер документа, частота слова в документе)
+    // РЎР»РѕРІР°СЂСЊ СЃР»РѕРІ: СЃР»РѕРІРѕ, (РЅРѕРјРµСЂ РґРѕРєСѓРјРµРЅС‚Р°, С‡Р°СЃС‚РѕС‚Р° СЃР»РѕРІР° РІ РґРѕРєСѓРјРµРЅС‚Рµ)
     std::map<std::string, std::map<int, double>> word_to_document_freqs_;
 
-    // Словарь документов: номер документа, (слово, частота слова в документе)
+    // РЎР»РѕРІР°СЂСЊ РґРѕРєСѓРјРµРЅС‚РѕРІ: РЅРѕРјРµСЂ РґРѕРєСѓРјРµРЅС‚Р°, (СЃР»РѕРІРѕ, С‡Р°СЃС‚РѕС‚Р° СЃР»РѕРІР° РІ РґРѕРєСѓРјРµРЅС‚Рµ)
     std::map<int, std::map<std::string, double>> documents_to_word_freqs_;
     
-    //Словарь документов: номер документа св-ва
+    //РЎР»РѕРІР°СЂСЊ РґРѕРєСѓРјРµРЅС‚РѕРІ: РЅРѕРјРµСЂ РґРѕРєСѓРјРµРЅС‚Р° СЃРІ-РІР°
     std::map<int, DocumentData> documents_;
     
-    // Сортированный список документов. Указывается при добавлении документа
-    // (в прошлом был vector и указывал порядок добавления)
+    // РЎРѕСЂС‚РёСЂРѕРІР°РЅРЅС‹Р№ СЃРїРёСЃРѕРє РґРѕРєСѓРјРµРЅС‚РѕРІ. РЈРєР°Р·С‹РІР°РµС‚СЃСЏ РїСЂРё РґРѕР±Р°РІР»РµРЅРёРё РґРѕРєСѓРјРµРЅС‚Р°
+    // (РІ РїСЂРѕС€Р»РѕРј Р±С‹Р» vector Рё СѓРєР°Р·С‹РІР°Р» РїРѕСЂСЏРґРѕРє РґРѕР±Р°РІР»РµРЅРёСЏ)
     std::set<int> document_ids_;
 
 
@@ -163,24 +163,24 @@ private:
 
     QueryWord ParseQueryWord(std::string_view text) const;
 
-    // Последовательный парсинг
+    // РџРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹Р№ РїР°СЂСЃРёРЅРі
     Query ParseQuery(std::string_view text) const;
 
     // Existence required
     double ComputeWordInverseDocumentFreq(const std::string& word) const;
 
-    // Однопоточная версия FindAllDocuments
+    // РћРґРЅРѕРїРѕС‚РѕС‡РЅР°СЏ РІРµСЂСЃРёСЏ FindAllDocuments
     template <typename DocumentPredicate>
     std::vector<Document> FindAllDocuments(Query& query, DocumentPredicate document_predicate) const;
 
-    // Многопоточная версия FindAllDocuments с последовательным параметром
+    // РњРЅРѕРіРѕРїРѕС‚РѕС‡РЅР°СЏ РІРµСЂСЃРёСЏ FindAllDocuments СЃ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹Рј РїР°СЂР°РјРµС‚СЂРѕРј
     template <typename DocumentPredicate>
     std::vector<Document> FindAllDocuments(
         const std::execution::sequenced_policy& policy,
         Query& query,
         DocumentPredicate document_predicate) const;
 
-    // Многопоточная версия FindAllDocuments
+    // РњРЅРѕРіРѕРїРѕС‚РѕС‡РЅР°СЏ РІРµСЂСЃРёСЏ FindAllDocuments
     template <typename DocumentPredicate>
     std::vector<Document> FindAllDocuments(
         const std::execution::parallel_policy& policy,
@@ -189,7 +189,7 @@ private:
 };
 
 
-// ----- Тела функций из объявления класса -----
+// ----- РўРµР»Р° С„СѓРЅРєС†РёР№ РёР· РѕР±СЉСЏРІР»РµРЅРёСЏ РєР»Р°СЃСЃР° -----
 
 //public:
 template <typename StringContainer>
@@ -202,14 +202,14 @@ SearchServer::SearchServer(const StringContainer& stop_words)
 }
 
 
-// Однопоточная версия FindTopDocuments
+// РћРґРЅРѕРїРѕС‚РѕС‡РЅР°СЏ РІРµСЂСЃРёСЏ FindTopDocuments
 template <typename DocumentPredicate>
 std::vector<Document> SearchServer::FindTopDocuments(std::string_view raw_query, DocumentPredicate document_predicate) const {
     
-    // Выводит структуру Query (2xvector<string_view>)
+    // Р’С‹РІРѕРґРёС‚ СЃС‚СЂСѓРєС‚СѓСЂСѓ Query (2xvector<string_view>)
     auto query = ParseQuery(raw_query);
 
-    // Сортируем полуенный результат - для Query с list
+    // РЎРѕСЂС‚РёСЂСѓРµРј РїРѕР»СѓРµРЅРЅС‹Р№ СЂРµР·СѓР»СЊС‚Р°С‚ - РґР»СЏ Query СЃ list
     std::sort(query.plus_words.begin(), query.plus_words.end());
     auto new_end = std::unique(query.plus_words.begin(), query.plus_words.end());
     query.plus_words.erase(new_end, query.plus_words.end());
@@ -218,7 +218,7 @@ std::vector<Document> SearchServer::FindTopDocuments(std::string_view raw_query,
     new_end = std::unique(query.minus_words.begin(), query.minus_words.end());
     query.minus_words.erase(new_end, query.minus_words.end());
 
-    // Находим все подходящеие документы
+    // РќР°С…РѕРґРёРј РІСЃРµ РїРѕРґС…РѕРґСЏС‰РµРёРµ РґРѕРєСѓРјРµРЅС‚С‹
     auto matched_documents = FindAllDocuments(query, document_predicate);
 
     sort(matched_documents.begin(), matched_documents.end(),
@@ -238,7 +238,7 @@ std::vector<Document> SearchServer::FindTopDocuments(std::string_view raw_query,
 }
 
 
-// Многопоточная версия FindTopDocuments с последовательным параметром
+// РњРЅРѕРіРѕРїРѕС‚РѕС‡РЅР°СЏ РІРµСЂСЃРёСЏ FindTopDocuments СЃ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹Рј РїР°СЂР°РјРµС‚СЂРѕРј
 template <typename DocumentPredicate>
 std::vector<Document> SearchServer::FindTopDocuments(
     const std::execution::sequenced_policy& policy,
@@ -248,17 +248,17 @@ std::vector<Document> SearchServer::FindTopDocuments(
 }
 
 
-// Многопоточная реализация FindTopDocuments с параллельным параметром
+// РњРЅРѕРіРѕРїРѕС‚РѕС‡РЅР°СЏ СЂРµР°Р»РёР·Р°С†РёСЏ FindTopDocuments СЃ РїР°СЂР°Р»Р»РµР»СЊРЅС‹Рј РїР°СЂР°РјРµС‚СЂРѕРј
 template <typename DocumentPredicate>
 std::vector<Document> SearchServer::FindTopDocuments(
     const std::execution::parallel_policy& policy,
     std::string_view raw_query,
     DocumentPredicate document_predicate) const {
 
-    // Выводит структуру Query (2xvector<string_view>)
+    // Р’С‹РІРѕРґРёС‚ СЃС‚СЂСѓРєС‚СѓСЂСѓ Query (2xvector<string_view>)
     auto query = ParseQuery(raw_query);
 
-    // Сортируем полуенный результат - для Query с list
+    // РЎРѕСЂС‚РёСЂСѓРµРј РїРѕР»СѓРµРЅРЅС‹Р№ СЂРµР·СѓР»СЊС‚Р°С‚ - РґР»СЏ Query СЃ list
     std::sort(query.plus_words.begin(), query.plus_words.end());
     auto new_end = std::unique(query.plus_words.begin(), query.plus_words.end());
     query.plus_words.erase(new_end, query.plus_words.end());
@@ -267,7 +267,7 @@ std::vector<Document> SearchServer::FindTopDocuments(
     new_end = std::unique(query.minus_words.begin(), query.minus_words.end());
     query.minus_words.erase(new_end, query.minus_words.end());
 
-    // Находим все подходящеие документы
+    // РќР°С…РѕРґРёРј РІСЃРµ РїРѕРґС…РѕРґСЏС‰РµРёРµ РґРѕРєСѓРјРµРЅС‚С‹
     auto matched_documents = FindAllDocuments(policy, query, document_predicate);
 
     sort(matched_documents.begin(), matched_documents.end(),
@@ -290,31 +290,31 @@ std::vector<Document> SearchServer::FindTopDocuments(
 
 //private:
 
-// Однопоточная версия FindAllDocuments
+// РћРґРЅРѕРїРѕС‚РѕС‡РЅР°СЏ РІРµСЂСЃРёСЏ FindAllDocuments
 template <typename DocumentPredicate>
 std::vector<Document> SearchServer::FindAllDocuments(Query& query, DocumentPredicate document_predicate) const {
-    // Контейнер для хранения найденных документов
+    // РљРѕРЅС‚РµР№РЅРµСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РЅР°Р№РґРµРЅРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
     std::map<int, double> document_to_relevance;
 
-    // Находим документы, содержащие плюс слова
+    // РќР°С…РѕРґРёРј РґРѕРєСѓРјРµРЅС‚С‹, СЃРѕРґРµСЂР¶Р°С‰РёРµ РїР»СЋСЃ СЃР»РѕРІР°
     for (auto& word_view : query.plus_words) {
-        // Преобразуем указатель в строку для возможности работы встроенных методов
+        // РџСЂРµРѕР±СЂР°Р·СѓРµРј СѓРєР°Р·Р°С‚РµР»СЊ РІ СЃС‚СЂРѕРєСѓ РґР»СЏ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё СЂР°Р±РѕС‚С‹ РІСЃС‚СЂРѕРµРЅРЅС‹С… РјРµС‚РѕРґРѕРІ
         std::string word_string{ word_view };
 
-        // Если слова нет, переходим к следующему слову
+        // Р•СЃР»Рё СЃР»РѕРІР° РЅРµС‚, РїРµСЂРµС…РѕРґРёРј Рє СЃР»РµРґСѓСЋС‰РµРјСѓ СЃР»РѕРІСѓ
         if (word_to_document_freqs_.count(word_string) == 0) {
             continue;
         }
 
-        // Считаем инверсированную частоту слова
+        // РЎС‡РёС‚Р°РµРј РёРЅРІРµСЂСЃРёСЂРѕРІР°РЅРЅСѓСЋ С‡Р°СЃС‚РѕС‚Сѓ СЃР»РѕРІР°
         const double inverse_document_freq = ComputeWordInverseDocumentFreq(word_string);
 
-        // Проходим по связанному со словом словарю для доступа к документам, связанным с этим словом
+        // РџСЂРѕС…РѕРґРёРј РїРѕ СЃРІСЏР·Р°РЅРЅРѕРјСѓ СЃРѕ СЃР»РѕРІРѕРј СЃР»РѕРІР°СЂСЋ РґР»СЏ РґРѕСЃС‚СѓРїР° Рє РґРѕРєСѓРјРµРЅС‚Р°Рј, СЃРІСЏР·Р°РЅРЅС‹Рј СЃ СЌС‚РёРј СЃР»РѕРІРѕРј
         for (const auto [document_id, term_freq] : word_to_document_freqs_.at(word_string)) {
-            // Берем информацию о документе
+            // Р‘РµСЂРµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РґРѕРєСѓРјРµРЅС‚Рµ
             const auto& document_data = documents_.at(document_id);
 
-            // Проверяем документ на доплнительные условаия. Если ок, то увеличиваем релевантность документа
+            // РџСЂРѕРІРµСЂСЏРµРј РґРѕРєСѓРјРµРЅС‚ РЅР° РґРѕРїР»РЅРёС‚РµР»СЊРЅС‹Рµ СѓСЃР»РѕРІР°РёСЏ. Р•СЃР»Рё РѕРє, С‚Рѕ СѓРІРµР»РёС‡РёРІР°РµРј СЂРµР»РµРІР°РЅС‚РЅРѕСЃС‚СЊ РґРѕРєСѓРјРµРЅС‚Р°
             if (document_predicate(document_id, document_data.status, document_data.rating)) {
                 document_to_relevance[document_id] += term_freq * inverse_document_freq;
             }
@@ -322,26 +322,26 @@ std::vector<Document> SearchServer::FindAllDocuments(Query& query, DocumentPredi
     }
 
 
-    // Находим докуметы, сожержащие минус слова
+    // РќР°С…РѕРґРёРј РґРѕРєСѓРјРµС‚С‹, СЃРѕР¶РµСЂР¶Р°С‰РёРµ РјРёРЅСѓСЃ СЃР»РѕРІР°
     for (auto& word_view : query.minus_words) {
-        // Преобразуем указатель в строку для возможности работы встроенных методов
+        // РџСЂРµРѕР±СЂР°Р·СѓРµРј СѓРєР°Р·Р°С‚РµР»СЊ РІ СЃС‚СЂРѕРєСѓ РґР»СЏ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё СЂР°Р±РѕС‚С‹ РІСЃС‚СЂРѕРµРЅРЅС‹С… РјРµС‚РѕРґРѕРІ
         std::string word_string{ word_view };
 
-        // Если слова нет, переходим к следующему слову
+        // Р•СЃР»Рё СЃР»РѕРІР° РЅРµС‚, РїРµСЂРµС…РѕРґРёРј Рє СЃР»РµРґСѓСЋС‰РµРјСѓ СЃР»РѕРІСѓ
         if (word_to_document_freqs_.count(word_string) == 0) {
             continue;
         }
 
-        // Проверяем какие документы содержат минус слова и удаляем их из выдачи
+        // РџСЂРѕРІРµСЂСЏРµРј РєР°РєРёРµ РґРѕРєСѓРјРµРЅС‚С‹ СЃРѕРґРµСЂР¶Р°С‚ РјРёРЅСѓСЃ СЃР»РѕРІР° Рё СѓРґР°Р»СЏРµРј РёС… РёР· РІС‹РґР°С‡Рё
         for (const auto [document_id, _] : word_to_document_freqs_.at(word_string)) {
             document_to_relevance.erase(document_id);
         }
     }
 
-    // Контейнер для возврата найденных документов
+    // РљРѕРЅС‚РµР№РЅРµСЂ РґР»СЏ РІРѕР·РІСЂР°С‚Р° РЅР°Р№РґРµРЅРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
     std::vector<Document> matched_documents;
 
-    // Переносим документы из поиска в вывод, присваивая нужные параметры
+    // РџРµСЂРµРЅРѕСЃРёРј РґРѕРєСѓРјРµРЅС‚С‹ РёР· РїРѕРёСЃРєР° РІ РІС‹РІРѕРґ, РїСЂРёСЃРІР°РёРІР°СЏ РЅСѓР¶РЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹
     for (const auto [document_id, relevance] : document_to_relevance) {
         matched_documents.push_back(
             { document_id, relevance, documents_.at(document_id).rating });
@@ -350,7 +350,7 @@ std::vector<Document> SearchServer::FindAllDocuments(Query& query, DocumentPredi
     return matched_documents;
 }
 
-// Многопоточная версия FindAllDocuments с последовательным параметром
+// РњРЅРѕРіРѕРїРѕС‚РѕС‡РЅР°СЏ РІРµСЂСЃРёСЏ FindAllDocuments СЃ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹Рј РїР°СЂР°РјРµС‚СЂРѕРј
 template <typename DocumentPredicate>
 std::vector<Document> SearchServer::FindAllDocuments(
     const std::execution::sequenced_policy& policy,
@@ -360,34 +360,34 @@ std::vector<Document> SearchServer::FindAllDocuments(
     return FindAllDocuments(query, document_predicate);
 }
 
-// Многопоточная версия FindAllDocuments с параллельным параметром
+// РњРЅРѕРіРѕРїРѕС‚РѕС‡РЅР°СЏ РІРµСЂСЃРёСЏ FindAllDocuments СЃ РїР°СЂР°Р»Р»РµР»СЊРЅС‹Рј РїР°СЂР°РјРµС‚СЂРѕРј
 template <typename DocumentPredicate>
 std::vector<Document> SearchServer::FindAllDocuments(
     const std::execution::parallel_policy& policy,
     Query& query,
     DocumentPredicate document_predicate) const {
 
-    // Контейнер для хранения найденных документов, 
+    // РљРѕРЅС‚РµР№РЅРµСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РЅР°Р№РґРµРЅРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ, 
     //std::map<int, double> document_to_relevance;
     ConcurrentMap<int, double> document_to_relevance(MAX_BUCKETS_DURING_SEARCH);
 
-    // Проверяем есть ли слово в базе и, если есть, обрабатываем
+    // РџСЂРѕРІРµСЂСЏРµРј РµСЃС‚СЊ Р»Рё СЃР»РѕРІРѕ РІ Р±Р°Р·Рµ Рё, РµСЃР»Рё РµСЃС‚СЊ, РѕР±СЂР°Р±Р°С‚С‹РІР°РµРј
     auto is_plus_presented = [&](auto& word_view) {
-        // Преобразуем указатель в строку для возможности работы встроенных методов
+        // РџСЂРµРѕР±СЂР°Р·СѓРµРј СѓРєР°Р·Р°С‚РµР»СЊ РІ СЃС‚СЂРѕРєСѓ РґР»СЏ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё СЂР°Р±РѕС‚С‹ РІСЃС‚СЂРѕРµРЅРЅС‹С… РјРµС‚РѕРґРѕРІ
         std::string word_string{ word_view };
 
-        // Если слова нет, пропускаем его
+        // Р•СЃР»Рё СЃР»РѕРІР° РЅРµС‚, РїСЂРѕРїСѓСЃРєР°РµРј РµРіРѕ
         if (word_to_document_freqs_.count(word_string) != 0) {
-            // Считаем инверсированную частоту слова
+            // РЎС‡РёС‚Р°РµРј РёРЅРІРµСЂСЃРёСЂРѕРІР°РЅРЅСѓСЋ С‡Р°СЃС‚РѕС‚Сѓ СЃР»РѕРІР°
             const double inverse_document_freq = ComputeWordInverseDocumentFreq(word_string);
 
-            // Проходим по связанному со словом словарю для доступа к документам, связанным с этим словом
+            // РџСЂРѕС…РѕРґРёРј РїРѕ СЃРІСЏР·Р°РЅРЅРѕРјСѓ СЃРѕ СЃР»РѕРІРѕРј СЃР»РѕРІР°СЂСЋ РґР»СЏ РґРѕСЃС‚СѓРїР° Рє РґРѕРєСѓРјРµРЅС‚Р°Рј, СЃРІСЏР·Р°РЅРЅС‹Рј СЃ СЌС‚РёРј СЃР»РѕРІРѕРј
             for (const auto& [document_id, term_freq] : word_to_document_freqs_.at(word_string)) {
-                // Берем информацию о документе
+                // Р‘РµСЂРµРј РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РґРѕРєСѓРјРµРЅС‚Рµ
                 const auto& document_data = documents_.at(document_id);
 
-                // Проверяем документ на дополнительные условия. Если ок,
-                // то увеличиваем релевантность документа
+                // РџСЂРѕРІРµСЂСЏРµРј РґРѕРєСѓРјРµРЅС‚ РЅР° РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ СѓСЃР»РѕРІРёСЏ. Р•СЃР»Рё РѕРє,
+                // С‚Рѕ СѓРІРµР»РёС‡РёРІР°РµРј СЂРµР»РµРІР°РЅС‚РЅРѕСЃС‚СЊ РґРѕРєСѓРјРµРЅС‚Р°
                 if (document_predicate(document_id, document_data.status, document_data.rating)) {
                     document_to_relevance[document_id].ref_to_value += term_freq * inverse_document_freq;
                 }
@@ -395,20 +395,20 @@ std::vector<Document> SearchServer::FindAllDocuments(
         }
     };
 
-    // Находим документы, содержащие плюс слова
+    // РќР°С…РѕРґРёРј РґРѕРєСѓРјРµРЅС‚С‹, СЃРѕРґРµСЂР¶Р°С‰РёРµ РїР»СЋСЃ СЃР»РѕРІР°
     for_each(policy,
         query.plus_words.begin(), query.plus_words.end(),
         is_plus_presented);
 
     
-    // Проверяем есть ли слово в базе и, если есть, обрабатываем
+    // РџСЂРѕРІРµСЂСЏРµРј РµСЃС‚СЊ Р»Рё СЃР»РѕРІРѕ РІ Р±Р°Р·Рµ Рё, РµСЃР»Рё РµСЃС‚СЊ, РѕР±СЂР°Р±Р°С‚С‹РІР°РµРј
     auto is_minus_presented = [&](auto& word_view) {
-        // Преобразуем указатель в строку для возможности работы встроенных методов
+        // РџСЂРµРѕР±СЂР°Р·СѓРµРј СѓРєР°Р·Р°С‚РµР»СЊ РІ СЃС‚СЂРѕРєСѓ РґР»СЏ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё СЂР°Р±РѕС‚С‹ РІСЃС‚СЂРѕРµРЅРЅС‹С… РјРµС‚РѕРґРѕРІ
         std::string word_string{ word_view };
 
-        // Если слова нет, переходим к следующему слову
+        // Р•СЃР»Рё СЃР»РѕРІР° РЅРµС‚, РїРµСЂРµС…РѕРґРёРј Рє СЃР»РµРґСѓСЋС‰РµРјСѓ СЃР»РѕРІСѓ
         if (word_to_document_freqs_.count(word_string) != 0) {
-            // Проверяем какие документы содержат минус слова и удаляем их из выдачи
+            // РџСЂРѕРІРµСЂСЏРµРј РєР°РєРёРµ РґРѕРєСѓРјРµРЅС‚С‹ СЃРѕРґРµСЂР¶Р°С‚ РјРёРЅСѓСЃ СЃР»РѕРІР° Рё СѓРґР°Р»СЏРµРј РёС… РёР· РІС‹РґР°С‡Рё
             for (const auto& [document_id, term_freq] : word_to_document_freqs_.at(word_string)) {
                // document_to_relevance.erase(document_id);
                 document_to_relevance[document_id].ref_to_value = 0;
@@ -420,10 +420,10 @@ std::vector<Document> SearchServer::FindAllDocuments(
         query.minus_words.begin(), query.minus_words.end(),
         is_minus_presented);
 
-    // Контейнер для возврата найденных документов
+    // РљРѕРЅС‚РµР№РЅРµСЂ РґР»СЏ РІРѕР·РІСЂР°С‚Р° РЅР°Р№РґРµРЅРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ
     std::vector<Document> matched_documents;
 
-    // Переносим документы из поиска в вывод, присваивая нужные параметры
+    // РџРµСЂРµРЅРѕСЃРёРј РґРѕРєСѓРјРµРЅС‚С‹ РёР· РїРѕРёСЃРєР° РІ РІС‹РІРѕРґ, РїСЂРёСЃРІР°РёРІР°СЏ РЅСѓР¶РЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹
     for (const auto& [document_id, relevance] : document_to_relevance.BuildOrdinaryMap()) {
         if (relevance > 0) {
             matched_documents.push_back(

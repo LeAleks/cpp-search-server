@@ -13,7 +13,7 @@
 using namespace std;
 
 
-// ----- Блок генераторов -----
+// ----- Р‘Р»РѕРє РіРµРЅРµСЂР°С‚РѕСЂРѕРІ -----
 
 string GenerateWord(mt19937& generator, int max_length) {
     const int length = uniform_int_distribution(1, max_length)(generator);
@@ -90,7 +90,7 @@ vector<string> GenerateQueriesWithMinus(mt19937& generator, const vector<string>
     return queries;
 }
 
-// ----- Проверка ProcessQueries -----
+// ----- РџСЂРѕРІРµСЂРєР° ProcessQueries -----
 
 template <typename QueriesProcessor>
 void Test(string_view mark, QueriesProcessor processor, const SearchServer& search_server, const vector<string>& queries) {
@@ -115,7 +115,7 @@ void BenchmarkProcessQueries() {
     TEST1(ProcessQueries);
 }
 
-// ----- Проверка RemoveDocument -----
+// ----- РџСЂРѕРІРµСЂРєР° RemoveDocument -----
 
 template <typename ExecutionPolicy>
 void Test(string_view mark, SearchServer search_server, ExecutionPolicy&& policy) {
@@ -180,7 +180,7 @@ void BenchmarkRemoveDocument() {
 }
 
 
-// ----- Проверка MatchDocument -----
+// ----- РџСЂРѕРІРµСЂРєР° MatchDocument -----
 
 template <typename ExecutionPolicy>
 void Test(string_view mark, SearchServer search_server, const string& query, ExecutionPolicy&& policy) {
@@ -217,7 +217,7 @@ void BenchmarkMatchDocument() {
 }
 
 
-// ----- Проверка FindTopDocuments -----
+// ----- РџСЂРѕРІРµСЂРєР° FindTopDocuments -----
 
 template <typename ExecutionPolicy>
 void Test(string_view mark, const SearchServer& search_server, const vector<string>& queries, ExecutionPolicy&& policy) {

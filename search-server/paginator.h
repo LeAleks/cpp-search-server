@@ -34,7 +34,7 @@ private:
 
 template <typename Iterator>
 class Paginator {
-    // òåëî êëàññà
+    // Ñ‚ÐµÐ»Ð¾ ÐºÐ»Ð°ÑÑÐ°
 public:
     Paginator(Iterator begin, Iterator end, size_t page_size) {
         for (size_t left = distance(begin, end); left > 0;) {

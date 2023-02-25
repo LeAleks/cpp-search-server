@@ -4,25 +4,25 @@
 using namespace std;
 
 void RemoveDuplicates(SearchServer& search_server, ostream& out) {
-    //Список id дубликатов
+    //РЎРїРёСЃРѕРє id РґСѓР±Р»РёРєР°С‚РѕРІ
     set<int> duplicates_id;
 
-    // Список уникальных наборов слов
+    // РЎРїРёСЃРѕРє СѓРЅРёРєР°Р»СЊРЅС‹С… РЅР°Р±РѕСЂРѕРІ СЃР»РѕРІ
     vector<set<string>> unique_sets_of_words;
 
-    // Проходим по списку документов в базе
+    // РџСЂРѕС…РѕРґРёРј РїРѕ СЃРїРёСЃРєСѓ РґРѕРєСѓРјРµРЅС‚РѕРІ РІ Р±Р°Р·Рµ
     for (int doc_id : search_server) {
-        //Составляем список слов документа
+        //РЎРѕСЃС‚Р°РІР»СЏРµРј СЃРїРёСЃРѕРє СЃР»РѕРІ РґРѕРєСѓРјРµРЅС‚Р°
         set<string> id_words;
         for (auto& [word, id] : search_server.GetWordFrequencies(doc_id)) {
             string word_string{ word };
             id_words.insert(word_string);
         }
 
-        //Проверяем, что такого списка еще не было
+        //РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ С‚Р°РєРѕРіРѕ СЃРїРёСЃРєР° РµС‰Рµ РЅРµ Р±С‹Р»Рѕ
         bool not_unique = count(unique_sets_of_words.begin(), unique_sets_of_words.end(), id_words);
  
-        //Если был, то документ - дубликат. Если нет - то добавляем спсиок слов как уникальный
+        //Р•СЃР»Рё Р±С‹Р», С‚Рѕ РґРѕРєСѓРјРµРЅС‚ - РґСѓР±Р»РёРєР°С‚. Р•СЃР»Рё РЅРµС‚ - С‚Рѕ РґРѕР±Р°РІР»СЏРµРј СЃРїСЃРёРѕРє СЃР»РѕРІ РєР°Рє СѓРЅРёРєР°Р»СЊРЅС‹Р№
         if (not_unique) {
             duplicates_id.insert(doc_id);
         }
@@ -31,7 +31,7 @@ void RemoveDuplicates(SearchServer& search_server, ostream& out) {
         }
     }
 
-    //Удалям документы по списку дубликатов
+    //РЈРґР°Р»СЏРј РґРѕРєСѓРјРµРЅС‚С‹ РїРѕ СЃРїРёСЃРєСѓ РґСѓР±Р»РёРєР°С‚РѕРІ
     for (auto id : duplicates_id) {
         out << "Found duplicate document id "s << id << endl;
         search_server.RemoveDocument(id);

@@ -8,18 +8,18 @@ std::vector<std::vector<Document>> ProcessQueries(
 	const SearchServer& search_server,
 	const std::vector<std::string>& queries) {
 
-	// Контейнер для сбора данных для вывода
+	// РљРѕРЅС‚РµР№РЅРµСЂ РґР»СЏ СЃР±РѕСЂР° РґР°РЅРЅС‹С… РґР»СЏ РІС‹РІРѕРґР°
 	std::vector<std::vector<Document>> documents_lists(queries.size());
 
-	// Простое, но не эффективное решение
+	// РџСЂРѕСЃС‚РѕРµ, РЅРѕ РЅРµ СЌС„С„РµРєС‚РёРІРЅРѕРµ СЂРµС€РµРЅРёРµ
 	// for (const std::string& query : queries) {
 	// 	 documents_lists.push_back(search_server.FindTopDocuments(query));
 	// }
 
 	std::transform(
-		std::execution::par,			// Включаем параллельное вычисление
-		queries.begin(), queries.end(),	// Начало и конец входного диапазона
-		documents_lists.begin(),		// Начало выходного диапазона
+		std::execution::par,			// Р’РєР»СЋС‡Р°РµРј РїР°СЂР°Р»Р»РµР»СЊРЅРѕРµ РІС‹С‡РёСЃР»РµРЅРёРµ
+		queries.begin(), queries.end(),	// РќР°С‡Р°Р»Рѕ Рё РєРѕРЅРµС† РІС…РѕРґРЅРѕРіРѕ РґРёР°РїР°Р·РѕРЅР°
+		documents_lists.begin(),		// РќР°С‡Р°Р»Рѕ РІС‹С…РѕРґРЅРѕРіРѕ РґРёР°РїР°Р·РѕРЅР°
 		[&search_server](std::string_view query) { return search_server.FindTopDocuments(query); }
 	);
 
@@ -30,16 +30,16 @@ std::list<Document> ProcessQueriesJoined(
 	const SearchServer& search_server,
 	const std::vector<std::string>& queries) {
 
-	// Контейнер данных для вывода
+	// РљРѕРЅС‚РµР№РЅРµСЂ РґР°РЅРЅС‹С… РґР»СЏ РІС‹РІРѕРґР°
 	std::list<Document> found_documents;
 
-	// Проводим параллельный поиск документов
+	// РџСЂРѕРІРѕРґРёРј РїР°СЂР°Р»Р»РµР»СЊРЅС‹Р№ РїРѕРёСЃРє РґРѕРєСѓРјРµРЅС‚РѕРІ
 	auto documents_lists = ProcessQueries(search_server, queries);
 
-	// Простое, но не самое эффективное решение
-	// Преобразуем вектор векторов в единый список
+	// РџСЂРѕСЃС‚РѕРµ, РЅРѕ РЅРµ СЃР°РјРѕРµ СЌС„С„РµРєС‚РёРІРЅРѕРµ СЂРµС€РµРЅРёРµ
+	// РџСЂРµРѕР±СЂР°Р·СѓРµРј РІРµРєС‚РѕСЂ РІРµРєС‚РѕСЂРѕРІ РІ РµРґРёРЅС‹Р№ СЃРїРёСЃРѕРє
 	for (auto& documents : documents_lists) {
-		// Каждый отдельно найденный документ всталяем в список
+		// РљР°Р¶РґС‹Р№ РѕС‚РґРµР»СЊРЅРѕ РЅР°Р№РґРµРЅРЅС‹Р№ РґРѕРєСѓРјРµРЅС‚ РІСЃС‚Р°Р»СЏРµРј РІ СЃРїРёСЃРѕРє
 		for (auto& document : documents) {
 			found_documents.push_back(document);
 		}

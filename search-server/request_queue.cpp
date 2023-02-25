@@ -7,24 +7,24 @@ using namespace std;
 //public
 
 RequestQueue::RequestQueue(const SearchServer& search_server) : search_server_(search_server) {
-    //Присвоили ссылку на исходный search_server внутренней переменной search_server_
-    //для возможности обращения к классу SearchServer внутри класса RequestQueue
+    //РџСЂРёСЃРІРѕРёР»Рё СЃСЃС‹Р»РєСѓ РЅР° РёСЃС…РѕРґРЅС‹Р№ search_server РІРЅСѓС‚СЂРµРЅРЅРµР№ РїРµСЂРµРјРµРЅРЅРѕР№ search_server_
+    //РґР»СЏ РІРѕР·РјРѕР¶РЅРѕСЃС‚Рё РѕР±СЂР°С‰РµРЅРёСЏ Рє РєР»Р°СЃСЃСѓ SearchServer РІРЅСѓС‚СЂРё РєР»Р°СЃСЃР° RequestQueue
 }
 
 int64_t RequestQueue::GetNoResultRequests() const {
-    // напишите реализацию
+    // РЅР°РїРёС€РёС‚Рµ СЂРµР°Р»РёР·Р°С†РёСЋ
     return count_if(requests_.begin(), requests_.end(), [](const QueryResult result) {return result.is_empty_result_ == true; });
 }
 
 vector<Document> RequestQueue::AddFindRequest(const std::string& raw_query, DocumentStatus status) {
-    // напишите реализацию
+    // РЅР°РїРёС€РёС‚Рµ СЂРµР°Р»РёР·Р°С†РёСЋ
     std::vector<Document> search_result = search_server_.FindTopDocuments(raw_query, status);
     AddRequest(search_result);
     return search_result;
 }
 
 vector<Document> RequestQueue::AddFindRequest(const std::string& raw_query) {
-    // напишите реализацию
+    // РЅР°РїРёС€РёС‚Рµ СЂРµР°Р»РёР·Р°С†РёСЋ
     std::vector<Document> search_result = search_server_.FindTopDocuments(raw_query);
     AddRequest(search_result);
     return search_result;

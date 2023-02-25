@@ -13,21 +13,21 @@ SearchServer::SearchServer(const string_view stop_words_text)
 }
 
 void SearchServer::AddDocument(int document_id, string_view document, DocumentStatus status, const vector<int>& ratings) {
-    // Проверяем, что номер документа валиден
+    // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РЅРѕРјРµСЂ РґРѕРєСѓРјРµРЅС‚Р° РІР°Р»РёРґРµРЅ
     if ((document_id < 0) || (documents_.count(document_id) > 0)) {
         throw invalid_argument("Invalid document_id"s);
     }
 
-    // Разбиваем строку текста документа на слова, исключая стоп-слова
+    // Р Р°Р·Р±РёРІР°РµРј СЃС‚СЂРѕРєСѓ С‚РµРєСЃС‚Р° РґРѕРєСѓРјРµРЅС‚Р° РЅР° СЃР»РѕРІР°, РёСЃРєР»СЋС‡Р°СЏ СЃС‚РѕРї-СЃР»РѕРІР°
     auto words = SplitIntoWordsNoStop(document);
 
-    //Расчет частоты слова и добавление ее в словари
+    //Р Р°СЃС‡РµС‚ С‡Р°СЃС‚РѕС‚С‹ СЃР»РѕРІР° Рё РґРѕР±Р°РІР»РµРЅРёРµ РµРµ РІ СЃР»РѕРІР°СЂРё
     const double inv_word_count = 1.0 / words.size();
 
-    // Берем конеретный словарь из словаря документов
+    // Р‘РµСЂРµРј РєРѕРЅРµСЂРµС‚РЅС‹Р№ СЃР»РѕРІР°СЂСЊ РёР· СЃР»РѕРІР°СЂСЏ РґРѕРєСѓРјРµРЅС‚РѕРІ
     map<string, double>& words_in_doc = documents_to_word_freqs_[document_id];
 
-    // Считаем частоту слова в документе
+    // РЎС‡РёС‚Р°РµРј С‡Р°СЃС‚РѕС‚Сѓ СЃР»РѕРІР° РІ РґРѕРєСѓРјРµРЅС‚Рµ
     for (auto& word : words) {
         word_to_document_freqs_[string{ word }][document_id] += inv_word_count;
         words_in_doc[string{ word }] += inv_word_count;
@@ -38,10 +38,10 @@ void SearchServer::AddDocument(int document_id, string_view document, DocumentSt
 }
 
 
-// Однопоточная версия FindTopDocuments
+// РћРґРЅРѕРїРѕС‚РѕС‡РЅР°СЏ РІРµСЂСЃРёСЏ FindTopDocuments
 
 vector<Document> SearchServer::FindTopDocuments(string_view raw_query, DocumentStatus status) const {
-    // Задаем предикат-лямбду по статусу
+    // Р—Р°РґР°РµРј РїСЂРµРґРёРєР°С‚-Р»СЏРјР±РґСѓ РїРѕ СЃС‚Р°С‚СѓСЃСѓ
     auto predicate = [status](int document_id, DocumentStatus document_status, int rating) {return document_status == status; };
 
     return FindTopDocuments(raw_query, predicate);
@@ -52,14 +52,14 @@ vector<Document> SearchServer::FindTopDocuments(string_view raw_query) const {
 }
 
 
-// Многопоточная версия FindTopDocuments с последовательным параметром
+// РњРЅРѕРіРѕРїРѕС‚РѕС‡РЅР°СЏ РІРµСЂСЃРёСЏ FindTopDocuments СЃ РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹Рј РїР°СЂР°РјРµС‚СЂРѕРј
 
 std::vector<Document> SearchServer::FindTopDocuments(
     const std::execution::sequenced_policy& policy,
     std::string_view raw_query,
     DocumentStatus status) const {
 
-    // Задаем предикат-лямбду по статусу
+    // Р—Р°РґР°РµРј РїСЂРµРґРёРєР°С‚-Р»СЏРјР±РґСѓ РїРѕ СЃС‚Р°С‚СѓСЃСѓ
     auto predicate = [status](int document_id, DocumentStatus document_status, int rating) {return document_status == status; };
 
     return FindTopDocuments(raw_query, predicate);
@@ -74,14 +74,14 @@ std::vector<Document> SearchServer::FindTopDocuments(
 }
 
 
-// Многопоточная реализация FindTopDocuments с параллельным параметром
+// РњРЅРѕРіРѕРїРѕС‚РѕС‡РЅР°СЏ СЂРµР°Р»РёР·Р°С†РёСЏ FindTopDocuments СЃ РїР°СЂР°Р»Р»РµР»СЊРЅС‹Рј РїР°СЂР°РјРµС‚СЂРѕРј
 
 std::vector<Document> SearchServer::FindTopDocuments(
     const std::execution::parallel_policy& policy,
     std::string_view raw_query,
     DocumentStatus status) const {
 
-    // Задаем предикат-лямбду по статусу
+    // Р—Р°РґР°РµРј РїСЂРµРґРёРєР°С‚-Р»СЏРјР±РґСѓ РїРѕ СЃС‚Р°С‚СѓСЃСѓ
     auto predicate = [status](int document_id, DocumentStatus document_status, int rating) {return document_status == status; };
 
     return FindTopDocuments(policy, raw_query, predicate);
@@ -108,17 +108,17 @@ std::set<int>::iterator SearchServer::end() {
     return document_ids_.end();
 }
 
-// Последовательная (однопоточная) версия MatchDocument
+// РџРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅР°СЏ (РѕРґРЅРѕРїРѕС‚РѕС‡РЅР°СЏ) РІРµСЂСЃРёСЏ MatchDocument
 tuple<vector<string_view>, DocumentStatus> SearchServer::MatchDocument(string_view raw_query, int document_id) const {
-    // Проверка, что id есть в базе
+    // РџСЂРѕРІРµСЂРєР°, С‡С‚Рѕ id РµСЃС‚СЊ РІ Р±Р°Р·Рµ
     if (document_ids_.count(document_id) == 0) {
         throw std::out_of_range("Document id not found"s);
     }
 
-    // Преобразует строку запроса в формат SearchServer::Query (2xvector<string_view>)
+    // РџСЂРµРѕР±СЂР°Р·СѓРµС‚ СЃС‚СЂРѕРєСѓ Р·Р°РїСЂРѕСЃР° РІ С„РѕСЂРјР°С‚ SearchServer::Query (2xvector<string_view>)
     auto query = ParseQuery(raw_query);
 
-    // Сортируем полуенный результат - для Query с list
+    // РЎРѕСЂС‚РёСЂСѓРµРј РїРѕР»СѓРµРЅРЅС‹Р№ СЂРµР·СѓР»СЊС‚Р°С‚ - РґР»СЏ Query СЃ list
     sort(query.plus_words.begin(), query.plus_words.end());
     auto new_end = unique(query.plus_words.begin(), query.plus_words.end());
     query.plus_words.erase(new_end, query.plus_words.end());
@@ -127,10 +127,10 @@ tuple<vector<string_view>, DocumentStatus> SearchServer::MatchDocument(string_vi
     new_end = unique(query.minus_words.begin(), query.minus_words.end());
     query.minus_words.erase(new_end, query.minus_words.end());
 
-    // Контейнер для сбора найденных слов в документе
+    // РљРѕРЅС‚РµР№РЅРµСЂ РґР»СЏ СЃР±РѕСЂР° РЅР°Р№РґРµРЅРЅС‹С… СЃР»РѕРІ РІ РґРѕРєСѓРјРµРЅС‚Рµ
     vector<string_view> matched_words;
 
-    // Поиск в документе минус слов из запроса. Если слово налено - очищаем контейнер и переходим к выводу
+    // РџРѕРёСЃРє РІ РґРѕРєСѓРјРµРЅС‚Рµ РјРёРЅСѓСЃ СЃР»РѕРІ РёР· Р·Р°РїСЂРѕСЃР°. Р•СЃР»Рё СЃР»РѕРІРѕ РЅР°Р»РµРЅРѕ - РѕС‡РёС‰Р°РµРј РєРѕРЅС‚РµР№РЅРµСЂ Рё РїРµСЂРµС…РѕРґРёРј Рє РІС‹РІРѕРґСѓ
     bool minus_is_not_presented = true;
     for (auto& word : query.minus_words) {
         if (word_to_document_freqs_.count(string{ word }) == 0) {
@@ -143,7 +143,7 @@ tuple<vector<string_view>, DocumentStatus> SearchServer::MatchDocument(string_vi
         }
     }
 
-    // Поиск в документе плюс слов из запроса. Если слово найдено - добавляем в контейнер
+    // РџРѕРёСЃРє РІ РґРѕРєСѓРјРµРЅС‚Рµ РїР»СЋСЃ СЃР»РѕРІ РёР· Р·Р°РїСЂРѕСЃР°. Р•СЃР»Рё СЃР»РѕРІРѕ РЅР°Р№РґРµРЅРѕ - РґРѕР±Р°РІР»СЏРµРј РІ РєРѕРЅС‚РµР№РЅРµСЂ
     if (minus_is_not_presented) {
         for (auto& word : query.plus_words) {
             if (word_to_document_freqs_.count(string{ word }) == 0) {
@@ -155,11 +155,11 @@ tuple<vector<string_view>, DocumentStatus> SearchServer::MatchDocument(string_vi
         }
     }
 
-    // Выводим список найденных слов (или пустой список) и статус документа
+    // Р’С‹РІРѕРґРёРј СЃРїРёСЃРѕРє РЅР°Р№РґРµРЅРЅС‹С… СЃР»РѕРІ (РёР»Рё РїСѓСЃС‚РѕР№ СЃРїРёСЃРѕРє) Рё СЃС‚Р°С‚СѓСЃ РґРѕРєСѓРјРµРЅС‚Р°
     return { matched_words, documents_.at(document_id).status };
 }
 
-// Последовательная (задано параметром) версия MatchDocument
+// РџРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅР°СЏ (Р·Р°РґР°РЅРѕ РїР°СЂР°РјРµС‚СЂРѕРј) РІРµСЂСЃРёСЏ MatchDocument
 tuple<vector<string_view>, DocumentStatus> SearchServer::MatchDocument(
     const execution::sequenced_policy& policy,
     string_view raw_query,
@@ -167,37 +167,37 @@ tuple<vector<string_view>, DocumentStatus> SearchServer::MatchDocument(
     return MatchDocument(raw_query, document_id);
 }
 
-// Параллельная (многопоточная) версия MatchDocument
+// РџР°СЂР°Р»Р»РµР»СЊРЅР°СЏ (РјРЅРѕРіРѕРїРѕС‚РѕС‡РЅР°СЏ) РІРµСЂСЃРёСЏ MatchDocument
 tuple<vector<string_view>, DocumentStatus> SearchServer::MatchDocument(
     const execution::parallel_policy& policy,
     string_view raw_query,
     int document_id) const {
     
-    // Проверка, что id есть в базе
+    // РџСЂРѕРІРµСЂРєР°, С‡С‚Рѕ id РµСЃС‚СЊ РІ Р±Р°Р·Рµ
     if (document_ids_.count(document_id) == 0) {
         throw std::out_of_range("Document id not found"s);
     }
 
-    // Преобразует строку запроса в формат SearchServer::Query (2xvector<string_view>)
+    // РџСЂРµРѕР±СЂР°Р·СѓРµС‚ СЃС‚СЂРѕРєСѓ Р·Р°РїСЂРѕСЃР° РІ С„РѕСЂРјР°С‚ SearchServer::Query (2xvector<string_view>)
     auto query = ParseQuery(raw_query);
 
-    // Контейнер для сбора и возврата найденных слов в документе
+    // РљРѕРЅС‚РµР№РЅРµСЂ РґР»СЏ СЃР±РѕСЂР° Рё РІРѕР·РІСЂР°С‚Р° РЅР°Р№РґРµРЅРЅС‹С… СЃР»РѕРІ РІ РґРѕРєСѓРјРµРЅС‚Рµ
     vector<string_view> matched_words;
 
-    // Ссылка на словарь содержащихся в документе слов
+    // РЎСЃС‹Р»РєР° РЅР° СЃР»РѕРІР°СЂСЊ СЃРѕРґРµСЂР¶Р°С‰РёС…СЃСЏ РІ РґРѕРєСѓРјРµРЅС‚Рµ СЃР»РѕРІ
     auto& words_in_document = documents_to_word_freqs_.at(document_id);
 
-    // Проверяем наличие стоп-слов в документе в параллельном режиме
+    // РџСЂРѕРІРµСЂСЏРµРј РЅР°Р»РёС‡РёРµ СЃС‚РѕРї-СЃР»РѕРІ РІ РґРѕРєСѓРјРµРЅС‚Рµ РІ РїР°СЂР°Р»Р»РµР»СЊРЅРѕРј СЂРµР¶РёРјРµ
     bool minus_is_presented = any_of(policy,
         query.minus_words.begin(), query.minus_words.end(),
         [&](auto& word) {return words_in_document.count(string{ word }); });
 
-    // Если минус слов нет, переходим к поиску и копированию плюс слов
+    // Р•СЃР»Рё РјРёРЅСѓСЃ СЃР»РѕРІ РЅРµС‚, РїРµСЂРµС…РѕРґРёРј Рє РїРѕРёСЃРєСѓ Рё РєРѕРїРёСЂРѕРІР°РЅРёСЋ РїР»СЋСЃ СЃР»РѕРІ
     if (!minus_is_presented) {
-        // Меняем размер контейнера - для Query с list
+        // РњРµРЅСЏРµРј СЂР°Р·РјРµСЂ РєРѕРЅС‚РµР№РЅРµСЂР° - РґР»СЏ Query СЃ list
         matched_words.resize(query.plus_words.size());
 
-        //Лямбда-функции для работы поиска плюс слов
+        //Р›СЏРјР±РґР°-С„СѓРЅРєС†РёРё РґР»СЏ СЂР°Р±РѕС‚С‹ РїРѕРёСЃРєР° РїР»СЋСЃ СЃР»РѕРІ
         auto is_presented = [&](auto& word) {
             bool presented = false;
 
@@ -208,31 +208,31 @@ tuple<vector<string_view>, DocumentStatus> SearchServer::MatchDocument(
             return presented;
         };
         
-        // Переносим слова в контейнер
+        // РџРµСЂРµРЅРѕСЃРёРј СЃР»РѕРІР° РІ РєРѕРЅС‚РµР№РЅРµСЂ
         auto new_end = copy_if(policy,
             query.plus_words.begin(), query.plus_words.end(),
             matched_words.begin(),
             is_presented);
 
-        //Меняем размер контейнера
+        //РњРµРЅСЏРµРј СЂР°Р·РјРµСЂ РєРѕРЅС‚РµР№РЅРµСЂР°
         matched_words.erase(new_end, matched_words.end());
     }
 
-    // Приводим вектор слов к нужному виду
+    // РџСЂРёРІРѕРґРёРј РІРµРєС‚РѕСЂ СЃР»РѕРІ Рє РЅСѓР¶РЅРѕРјСѓ РІРёРґСѓ
     sort(policy, matched_words.begin(), matched_words.end());
     auto last = unique(policy, matched_words.begin(), matched_words.end());
     matched_words.erase(last, matched_words.end());
 
-    // Выводим список найденных слов (или пустой список) и статус документа
+    // Р’С‹РІРѕРґРёРј СЃРїРёСЃРѕРє РЅР°Р№РґРµРЅРЅС‹С… СЃР»РѕРІ (РёР»Рё РїСѓСЃС‚РѕР№ СЃРїРёСЃРѕРє) Рё СЃС‚Р°С‚СѓСЃ РґРѕРєСѓРјРµРЅС‚Р°
     return { matched_words, documents_.at(document_id).status };
 }
 
 const map<string_view, double>& SearchServer::GetWordFrequencies(int document_id) const {
-    //Пустой словарь для выполения условия задания по возвращению ссылки на пустой map
+    //РџСѓСЃС‚РѕР№ СЃР»РѕРІР°СЂСЊ РґР»СЏ РІС‹РїРѕР»РµРЅРёСЏ СѓСЃР»РѕРІРёСЏ Р·Р°РґР°РЅРёСЏ РїРѕ РІРѕР·РІСЂР°С‰РµРЅРёСЋ СЃСЃС‹Р»РєРё РЅР° РїСѓСЃС‚РѕР№ map
     static map<string_view, double> response_;
     response_.clear();
 
-    // Если документа нет, то вощвращаем пустой контейнер
+    // Р•СЃР»Рё РґРѕРєСѓРјРµРЅС‚Р° РЅРµС‚, С‚Рѕ РІРѕС‰РІСЂР°С‰Р°РµРј РїСѓСЃС‚РѕР№ РєРѕРЅС‚РµР№РЅРµСЂ
     if (documents_to_word_freqs_.count(document_id) == 0) {
         return response_;
     }
@@ -260,33 +260,33 @@ void SearchServer::RemoveDocument(int document_id) {
     documents_to_word_freqs_.erase(document_id);
 }
 
-// Многопоточная версия с однопоточным параметом
+// РњРЅРѕРіРѕРїРѕС‚РѕС‡РЅР°СЏ РІРµСЂСЃРёСЏ СЃ РѕРґРЅРѕРїРѕС‚РѕС‡РЅС‹Рј РїР°СЂР°РјРµС‚РѕРј
 void SearchServer::RemoveDocument(const std::execution::sequenced_policy& policy, int document_id) {
     RemoveDocument(document_id);
 }
 
-// Многопоточная версия с многопоточным параметром
+// РњРЅРѕРіРѕРїРѕС‚РѕС‡РЅР°СЏ РІРµСЂСЃРёСЏ СЃ РјРЅРѕРіРѕРїРѕС‚РѕС‡РЅС‹Рј РїР°СЂР°РјРµС‚СЂРѕРј
 void SearchServer::RemoveDocument(const std::execution::parallel_policy& policy, int document_id) {
     if (document_ids_.count(document_id) == 0) {
         return;
     }
 
-    // Вытаскиваем словарь для document_id
+    // Р’С‹С‚Р°СЃРєРёРІР°РµРј СЃР»РѕРІР°СЂСЊ РґР»СЏ document_id
     auto& words_frequency = documents_to_word_freqs_.at(document_id);
 
-    // Создаем вектор для хранения указателей на слова в документе
+    // РЎРѕР·РґР°РµРј РІРµРєС‚РѕСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ СѓРєР°Р·Р°С‚РµР»РµР№ РЅР° СЃР»РѕРІР° РІ РґРѕРєСѓРјРµРЅС‚Рµ
     vector<const string*> words(words_frequency.size());
 
-    // Преобразуем изъятый словарь в вектор слов документа document_id
+    // РџСЂРµРѕР±СЂР°Р·СѓРµРј РёР·СЉСЏС‚С‹Р№ СЃР»РѕРІР°СЂСЊ РІ РІРµРєС‚РѕСЂ СЃР»РѕРІ РґРѕРєСѓРјРµРЅС‚Р° document_id
     transform(policy,
         words_frequency.begin(), words_frequency.end(),
         words.begin(),
         [](pair<const string, double>& word_freq) {return &word_freq.first; });
 
-    // Функция для удаления номера документа у слова
+    // Р¤СѓРЅРєС†РёСЏ РґР»СЏ СѓРґР°Р»РµРЅРёСЏ РЅРѕРјРµСЂР° РґРѕРєСѓРјРµРЅС‚Р° Сѓ СЃР»РѕРІР°
     auto erase_id = [&](auto& word) { word_to_document_freqs_.at(*word).erase(document_id); };
 
-    // Удаление документов из слов
+    // РЈРґР°Р»РµРЅРёРµ РґРѕРєСѓРјРµРЅС‚РѕРІ РёР· СЃР»РѕРІ
     for_each(policy,
         words.begin(), words.end(),
         erase_id);
@@ -310,7 +310,7 @@ bool SearchServer::IsValidWord(string_view word) {
 }
 
 vector<string_view> SearchServer::SplitIntoWordsNoStop(string_view text) const {
-    // Массив хранения слов для возврата
+    // РњР°СЃСЃРёРІ С…СЂР°РЅРµРЅРёСЏ СЃР»РѕРІ РґР»СЏ РІРѕР·РІСЂР°С‚Р°
     vector<string_view> words;
 
     for (const string_view word : SplitIntoWords(text)) {
@@ -354,21 +354,21 @@ SearchServer::QueryWord SearchServer::ParseQueryWord(string_view text) const {
 }
 
 SearchServer::Query SearchServer::ParseQuery(string_view text) const {
-    // Буффер хранения разбитых на группы слов
+    // Р‘СѓС„С„РµСЂ С…СЂР°РЅРµРЅРёСЏ СЂР°Р·Р±РёС‚С‹С… РЅР° РіСЂСѓРїРїС‹ СЃР»РѕРІ
     Query result;
 
-    // Разбиваем слова на группы в соответствии с типом слова
+    // Р Р°Р·Р±РёРІР°РµРј СЃР»РѕРІР° РЅР° РіСЂСѓРїРїС‹ РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРё СЃ С‚РёРїРѕРј СЃР»РѕРІР°
     for (string_view word : SplitIntoWords(text)) {
-        // Создаем контейнер для распарсенного слова из запроса
+        // РЎРѕР·РґР°РµРј РєРѕРЅС‚РµР№РЅРµСЂ РґР»СЏ СЂР°СЃРїР°СЂСЃРµРЅРЅРѕРіРѕ СЃР»РѕРІР° РёР· Р·Р°РїСЂРѕСЃР°
         auto query_word = ParseQueryWord(word);
 
-        // Проверяем тип слова и переносим в соответствующий список
+        // РџСЂРѕРІРµСЂСЏРµРј С‚РёРї СЃР»РѕРІР° Рё РїРµСЂРµРЅРѕСЃРёРј РІ СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёР№ СЃРїРёСЃРѕРє
         if (!query_word.is_stop) {
             if (query_word.is_minus) {
-                result.minus_words.push_back(query_word.data);// - для Query с list
+                result.minus_words.push_back(query_word.data);// - РґР»СЏ Query СЃ list
             }
             else {
-                result.plus_words.push_back(query_word.data); // - для Query с list
+                result.plus_words.push_back(query_word.data); // - РґР»СЏ Query СЃ list
             }
         }
     }

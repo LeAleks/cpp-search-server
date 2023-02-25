@@ -1,4 +1,4 @@
-// ----- Реализация макросов ASSERT, ASSERT_EQUAL, ASSERT_EQUAL_HINT, ASSERT_HINT и RUN_TEST -----
+// ----- Р РµР°Р»РёР·Р°С†РёСЏ РјР°РєСЂРѕСЃРѕРІ ASSERT, ASSERT_EQUAL, ASSERT_EQUAL_HINT, ASSERT_HINT Рё RUN_TEST -----
 
 #include "test_example_functions.h"
 #include "remove_duplicates.h"
@@ -12,7 +12,7 @@
 
 using namespace std;
 
-//Перегруз << для вывода DocumentStatus
+//РџРµСЂРµРіСЂСѓР· << РґР»СЏ РІС‹РІРѕРґР° DocumentStatus
 ostream& operator<<(ostream& out, const DocumentStatus& status) {
     out << "Status: "s;
     switch (status) {
@@ -35,7 +35,7 @@ ostream& operator<<(ostream& out, const DocumentStatus& status) {
     return out;
 }
 
-//Перегруз << для вывода map<string, int>
+//РџРµСЂРµРіСЂСѓР· << РґР»СЏ РІС‹РІРѕРґР° map<string, int>
 ostream& operator<<(ostream& out, const map<string, int>& container) {
     out << "{"s;
     bool is_first = true;
@@ -51,7 +51,7 @@ ostream& operator<<(ostream& out, const map<string, int>& container) {
     return out;
 }
 
-//Перегруз << для вывода map<string_view, int>
+//РџРµСЂРµРіСЂСѓР· << РґР»СЏ РІС‹РІРѕРґР° map<string_view, int>
 ostream& operator<<(ostream& out, const map<string_view, int>& container) {
     out << "{"s;
     bool is_first = true;
@@ -68,7 +68,7 @@ ostream& operator<<(ostream& out, const map<string_view, int>& container) {
     return out;
 }
 
-//Перегруз << для вывода map<string, double>
+//РџРµСЂРµРіСЂСѓР· << РґР»СЏ РІС‹РІРѕРґР° map<string, double>
 ostream& operator<<(ostream& out, const map<string, double>& container) {
     out << "{"s;
     bool is_first = true;
@@ -84,7 +84,7 @@ ostream& operator<<(ostream& out, const map<string, double>& container) {
     return out;
 }
 
-//Перегруз << для вывода map<string_view, double>
+//РџРµСЂРµРіСЂСѓР· << РґР»СЏ РІС‹РІРѕРґР° map<string_view, double>
 ostream& operator<<(ostream& out, const map<string_view, double>& container) {
     out << "{"s;
     bool is_first = true;
@@ -101,7 +101,7 @@ ostream& operator<<(ostream& out, const map<string_view, double>& container) {
     return out;
 }
 
-//Функция проверки что значение верно, и вывод диагностической информации
+//Р¤СѓРЅРєС†РёСЏ РїСЂРѕРІРµСЂРєРё С‡С‚Рѕ Р·РЅР°С‡РµРЅРёРµ РІРµСЂРЅРѕ, Рё РІС‹РІРѕРґ РґРёР°РіРЅРѕСЃС‚РёС‡РµСЃРєРѕР№ РёРЅС„РѕСЂРјР°С†РёРё
 void AssertImpl(bool value, const string& expr_str, const string& file, const string& func, unsigned line,
     const string& hint) {
     if (!value) {
@@ -119,16 +119,16 @@ void AssertImpl(bool value, const string& expr_str, const string& file, const st
 
 
 
-// -------- Начало модульных тестов поисковой системы ----------
+// -------- РќР°С‡Р°Р»Рѕ РјРѕРґСѓР»СЊРЅС‹С… С‚РµСЃС‚РѕРІ РїРѕРёСЃРєРѕРІРѕР№ СЃРёСЃС‚РµРјС‹ ----------
 
-//Тест проверяет, что новый документ добавлен и находится по ключевым словам из него (кроме стоп и минус слов)
+//РўРµСЃС‚ РїСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ РЅРѕРІС‹Р№ РґРѕРєСѓРјРµРЅС‚ РґРѕР±Р°РІР»РµРЅ Рё РЅР°С…РѕРґРёС‚СЃСЏ РїРѕ РєР»СЋС‡РµРІС‹Рј СЃР»РѕРІР°Рј РёР· РЅРµРіРѕ (РєСЂРѕРјРµ СЃС‚РѕРї Рё РјРёРЅСѓСЃ СЃР»РѕРІ)
 void TestAddingDocument() {
-    //Задаем тело документа
+    //Р—Р°РґР°РµРј С‚РµР»Рѕ РґРѕРєСѓРјРµРЅС‚Р°
     const int doc_id = 42;
     const string content = "cat in the city"s;
     const vector<int> ratings = { 1, 2, 3 };
 
-    //Проверяем, что документ добавляется
+    //РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РґРѕРєСѓРјРµРЅС‚ РґРѕР±Р°РІР»СЏРµС‚СЃСЏ
     {
         SearchServer server(""s);
         ASSERT_EQUAL_HINT(server.GetDocumentCount(), 0, "There should be no documents in the base"s);
@@ -136,8 +136,8 @@ void TestAddingDocument() {
         ASSERT_EQUAL_HINT(server.GetDocumentCount(), 1, "Should be added one document"s);
     }
 
-    //Проверяем, что все характеристи документа перенесены верно, rating роассчитан правильно
-    //(т.к. 1 документ, то relevance всегда равен 0)
+    //РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РІСЃРµ С…Р°СЂР°РєС‚РµСЂРёСЃС‚Рё РґРѕРєСѓРјРµРЅС‚Р° РїРµСЂРµРЅРµСЃРµРЅС‹ РІРµСЂРЅРѕ, rating СЂРѕР°СЃСЃС‡РёС‚Р°РЅ РїСЂР°РІРёР»СЊРЅРѕ
+    //(С‚.Рє. 1 РґРѕРєСѓРјРµРЅС‚, С‚Рѕ relevance РІСЃРµРіРґР° СЂР°РІРµРЅ 0)
     {
         SearchServer server(""s);
         server.AddDocument(doc_id, content, DocumentStatus::ACTUAL, ratings);
@@ -151,13 +151,13 @@ void TestAddingDocument() {
     }
 }
 
-// Тест проверяет, что поисковая система исключает стоп-слова при добавлении документов
+// РўРµСЃС‚ РїСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ РїРѕРёСЃРєРѕРІР°СЏ СЃРёСЃС‚РµРјР° РёСЃРєР»СЋС‡Р°РµС‚ СЃС‚РѕРї-СЃР»РѕРІР° РїСЂРё РґРѕР±Р°РІР»РµРЅРёРё РґРѕРєСѓРјРµРЅС‚РѕРІ
 void TestExcludeStopWordsFromAddedDocumentContent() {
     const int doc_id = 42;
     const string content = "cat in the city"s;
     const vector<int> ratings = { 1, 2, 3 };
-    // Сначала убеждаемся, что поиск слова, не входящего в список стоп-слов,
-    // находит нужный документ
+    // РЎРЅР°С‡Р°Р»Р° СѓР±РµР¶РґР°РµРјСЃСЏ, С‡С‚Рѕ РїРѕРёСЃРє СЃР»РѕРІР°, РЅРµ РІС…РѕРґСЏС‰РµРіРѕ РІ СЃРїРёСЃРѕРє СЃС‚РѕРї-СЃР»РѕРІ,
+    // РЅР°С…РѕРґРёС‚ РЅСѓР¶РЅС‹Р№ РґРѕРєСѓРјРµРЅС‚
     {
         SearchServer server(""s);
         server.AddDocument(doc_id, content, DocumentStatus::ACTUAL, ratings);
@@ -167,8 +167,8 @@ void TestExcludeStopWordsFromAddedDocumentContent() {
         ASSERT_EQUAL(doc0.id, doc_id);
     }
 
-    // Затем убеждаемся, что поиск этого же слова, входящего в список стоп-слов,
-    // возвращает пустой результат
+    // Р—Р°С‚РµРј СѓР±РµР¶РґР°РµРјСЃСЏ, С‡С‚Рѕ РїРѕРёСЃРє СЌС‚РѕРіРѕ Р¶Рµ СЃР»РѕРІР°, РІС…РѕРґСЏС‰РµРіРѕ РІ СЃРїРёСЃРѕРє СЃС‚РѕРї-СЃР»РѕРІ,
+    // РІРѕР·РІСЂР°С‰Р°РµС‚ РїСѓСЃС‚РѕР№ СЂРµР·СѓР»СЊС‚Р°С‚
     {
         SearchServer server("in the"s);
         server.AddDocument(doc_id, content, DocumentStatus::ACTUAL, ratings);
@@ -177,15 +177,15 @@ void TestExcludeStopWordsFromAddedDocumentContent() {
     }
 }
 
-//Тест проверяет, что поисковая система корректно удаляет докуместы, сожержащие минус-слова из поиска
+//РўРµСЃС‚ РїСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ РїРѕРёСЃРєРѕРІР°СЏ СЃРёСЃС‚РµРјР° РєРѕСЂСЂРµРєС‚РЅРѕ СѓРґР°Р»СЏРµС‚ РґРѕРєСѓРјРµСЃС‚С‹, СЃРѕР¶РµСЂР¶Р°С‰РёРµ РјРёРЅСѓСЃ-СЃР»РѕРІР° РёР· РїРѕРёСЃРєР°
 void TestExludeDocumentsWithMinusWords() {
-    //Задаем тело документа
+    //Р—Р°РґР°РµРј С‚РµР»Рѕ РґРѕРєСѓРјРµРЅС‚Р°
     const int doc_id = 42;
     const string content = "cat in the city"s;
     const vector<int> ratings = { 1, 2, 3 };
 
-    // Сначала убеждаемся, что поиск слова, не входящего в список стоп-слов,
-    // находит нужный документ
+    // РЎРЅР°С‡Р°Р»Р° СѓР±РµР¶РґР°РµРјСЃСЏ, С‡С‚Рѕ РїРѕРёСЃРє СЃР»РѕРІР°, РЅРµ РІС…РѕРґСЏС‰РµРіРѕ РІ СЃРїРёСЃРѕРє СЃС‚РѕРї-СЃР»РѕРІ,
+    // РЅР°С…РѕРґРёС‚ РЅСѓР¶РЅС‹Р№ РґРѕРєСѓРјРµРЅС‚
     {
         SearchServer server(""s);
         server.AddDocument(doc_id, content, DocumentStatus::ACTUAL, ratings);
@@ -195,8 +195,8 @@ void TestExludeDocumentsWithMinusWords() {
         ASSERT_EQUAL(doc0.id, doc_id);
     }
 
-    // Затем убеждаемся, что поиск этого же слова, входящего в список минус-слов,
-    // возвращает пустой результат
+    // Р—Р°С‚РµРј СѓР±РµР¶РґР°РµРјСЃСЏ, С‡С‚Рѕ РїРѕРёСЃРє СЌС‚РѕРіРѕ Р¶Рµ СЃР»РѕРІР°, РІС…РѕРґСЏС‰РµРіРѕ РІ СЃРїРёСЃРѕРє РјРёРЅСѓСЃ-СЃР»РѕРІ,
+    // РІРѕР·РІСЂР°С‰Р°РµС‚ РїСѓСЃС‚РѕР№ СЂРµР·СѓР»СЊС‚Р°С‚
     {
         SearchServer server(""s);
         server.AddDocument(doc_id, content, DocumentStatus::ACTUAL, ratings);
@@ -204,13 +204,13 @@ void TestExludeDocumentsWithMinusWords() {
             "Document with minus word should be removed from search responce"s);
     }
 
-    //Задаем второй документ, чтобы проверить, что удаляется только он, если только
-    //в нем есть минус слово
+    //Р—Р°РґР°РµРј РІС‚РѕСЂРѕР№ РґРѕРєСѓРјРµРЅС‚, С‡С‚РѕР±С‹ РїСЂРѕРІРµСЂРёС‚СЊ, С‡С‚Рѕ СѓРґР°Р»СЏРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РѕРЅ, РµСЃР»Рё С‚РѕР»СЊРєРѕ
+    //РІ РЅРµРј РµСЃС‚СЊ РјРёРЅСѓСЃ СЃР»РѕРІРѕ
     const int doc_id2 = 24;
     const string content2 = "cat in the night city"s;
     const vector<int> ratings2 = { 1, 2, 3 };
 
-    //Проверяем, что находятся оба документа
+    //РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РЅР°С…РѕРґСЏС‚СЃСЏ РѕР±Р° РґРѕРєСѓРјРµРЅС‚Р°
     {
         SearchServer server(""s);
         server.AddDocument(doc_id, content, DocumentStatus::ACTUAL, ratings);
@@ -220,7 +220,7 @@ void TestExludeDocumentsWithMinusWords() {
     }
 
 
-    //Проверяем, что один документ удаляется
+    //РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РѕРґРёРЅ РґРѕРєСѓРјРµРЅС‚ СѓРґР°Р»СЏРµС‚СЃСЏ
     {
         SearchServer server(""s);
         server.AddDocument(doc_id, content, DocumentStatus::ACTUAL, ratings);
@@ -233,9 +233,9 @@ void TestExludeDocumentsWithMinusWords() {
 
 }
 
-//Тест проверяет, что поиск подходящих документов работает корректно
+//РўРµСЃС‚ РїСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ РїРѕРёСЃРє РїРѕРґС…РѕРґСЏС‰РёС… РґРѕРєСѓРјРµРЅС‚РѕРІ СЂР°Р±РѕС‚Р°РµС‚ РєРѕСЂСЂРµРєС‚РЅРѕ
 void TestMatchingDocuments() {
-    //Задаем тело документа
+    //Р—Р°РґР°РµРј С‚РµР»Рѕ РґРѕРєСѓРјРµРЅС‚Р°
     const int doc0_id = 42;
     const string content0 = "cat in the city"s;
     const vector<int> ratings0 = { 1, 2, 3 };
@@ -243,8 +243,8 @@ void TestMatchingDocuments() {
     const string content1 = "dog under water"s;
     const vector<int> ratings1 = { 3, 1, 2 };
     
-    // Сначала убеждаемся, что поиск слова, не входящего в список стоп-слов или минус слов,
-    // находит нужный документ и выводит все совпадающие слова из запроса и верный статус
+    // РЎРЅР°С‡Р°Р»Р° СѓР±РµР¶РґР°РµРјСЃСЏ, С‡С‚Рѕ РїРѕРёСЃРє СЃР»РѕРІР°, РЅРµ РІС…РѕРґСЏС‰РµРіРѕ РІ СЃРїРёСЃРѕРє СЃС‚РѕРї-СЃР»РѕРІ РёР»Рё РјРёРЅСѓСЃ СЃР»РѕРІ,
+    // РЅР°С…РѕРґРёС‚ РЅСѓР¶РЅС‹Р№ РґРѕРєСѓРјРµРЅС‚ Рё РІС‹РІРѕРґРёС‚ РІСЃРµ СЃРѕРІРїР°РґР°СЋС‰РёРµ СЃР»РѕРІР° РёР· Р·Р°РїСЂРѕСЃР° Рё РІРµСЂРЅС‹Р№ СЃС‚Р°С‚СѓСЃ
     {
         SearchServer server(""sv);
         server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
@@ -254,7 +254,7 @@ void TestMatchingDocuments() {
         ASSERT_EQUAL(status, DocumentStatus::ACTUAL);
     }
     
-    //Проверяем, что документ, не содержащий слов из запроса, не будет выведен (возвращает пустой список слов)
+    //РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РґРѕРєСѓРјРµРЅС‚, РЅРµ СЃРѕРґРµСЂР¶Р°С‰РёР№ СЃР»РѕРІ РёР· Р·Р°РїСЂРѕСЃР°, РЅРµ Р±СѓРґРµС‚ РІС‹РІРµРґРµРЅ (РІРѕР·РІСЂР°С‰Р°РµС‚ РїСѓСЃС‚РѕР№ СЃРїРёСЃРѕРє СЃР»РѕРІ)
     {
         SearchServer server(""s);
         server.AddDocument(doc1_id, content1, DocumentStatus::ACTUAL, ratings1);
@@ -263,7 +263,7 @@ void TestMatchingDocuments() {
         ASSERT_EQUAL(status, DocumentStatus::ACTUAL);
     }
     
-    //Проверяем, что наличие минус слова возвращает пустой список слов
+    //РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РЅР°Р»РёС‡РёРµ РјРёРЅСѓСЃ СЃР»РѕРІР° РІРѕР·РІСЂР°С‰Р°РµС‚ РїСѓСЃС‚РѕР№ СЃРїРёСЃРѕРє СЃР»РѕРІ
     {
         SearchServer server(""s);
         server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
@@ -272,7 +272,7 @@ void TestMatchingDocuments() {
         ASSERT_EQUAL(status, DocumentStatus::ACTUAL);
     }
     
-    //Поверяем, что наличие минус слова не влияет на вывод документа, не содеращего минус слово
+    //РџРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РЅР°Р»РёС‡РёРµ РјРёРЅСѓСЃ СЃР»РѕРІР° РЅРµ РІР»РёСЏРµС‚ РЅР° РІС‹РІРѕРґ РґРѕРєСѓРјРµРЅС‚Р°, РЅРµ СЃРѕРґРµСЂР°С‰РµРіРѕ РјРёРЅСѓСЃ СЃР»РѕРІРѕ
     {
         SearchServer server(""s);
         server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
@@ -284,10 +284,10 @@ void TestMatchingDocuments() {
     }
     
 
-    // ---- Проверка параллельного метода -----
+    // ---- РџСЂРѕРІРµСЂРєР° РїР°СЂР°Р»Р»РµР»СЊРЅРѕРіРѕ РјРµС‚РѕРґР° -----
 
-    // Сначала убеждаемся, что поиск слова, не входящего в список стоп-слов или минус слов,
-    // находит нужный документ и выводит все совпадающие слова из запроса и верный статус
+    // РЎРЅР°С‡Р°Р»Р° СѓР±РµР¶РґР°РµРјСЃСЏ, С‡С‚Рѕ РїРѕРёСЃРє СЃР»РѕРІР°, РЅРµ РІС…РѕРґСЏС‰РµРіРѕ РІ СЃРїРёСЃРѕРє СЃС‚РѕРї-СЃР»РѕРІ РёР»Рё РјРёРЅСѓСЃ СЃР»РѕРІ,
+    // РЅР°С…РѕРґРёС‚ РЅСѓР¶РЅС‹Р№ РґРѕРєСѓРјРµРЅС‚ Рё РІС‹РІРѕРґРёС‚ РІСЃРµ СЃРѕРІРїР°РґР°СЋС‰РёРµ СЃР»РѕРІР° РёР· Р·Р°РїСЂРѕСЃР° Рё РІРµСЂРЅС‹Р№ СЃС‚Р°С‚СѓСЃ
     {
         SearchServer server(""s);
         server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
@@ -297,7 +297,7 @@ void TestMatchingDocuments() {
         ASSERT_EQUAL(status, DocumentStatus::ACTUAL);
     }
     
-    //Проверяем, что документ, не содержащий слов из запроса, не будет выведен (возвращает пустой список слов)
+    //РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РґРѕРєСѓРјРµРЅС‚, РЅРµ СЃРѕРґРµСЂР¶Р°С‰РёР№ СЃР»РѕРІ РёР· Р·Р°РїСЂРѕСЃР°, РЅРµ Р±СѓРґРµС‚ РІС‹РІРµРґРµРЅ (РІРѕР·РІСЂР°С‰Р°РµС‚ РїСѓСЃС‚РѕР№ СЃРїРёСЃРѕРє СЃР»РѕРІ)
     {
         SearchServer server(""s);
         server.AddDocument(doc1_id, content1, DocumentStatus::ACTUAL, ratings1);
@@ -306,7 +306,7 @@ void TestMatchingDocuments() {
         ASSERT_EQUAL(status, DocumentStatus::ACTUAL);
     }
     
-    //Проверяем, что наличие минус слова возвращает пустой список слов
+    //РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РЅР°Р»РёС‡РёРµ РјРёРЅСѓСЃ СЃР»РѕРІР° РІРѕР·РІСЂР°С‰Р°РµС‚ РїСѓСЃС‚РѕР№ СЃРїРёСЃРѕРє СЃР»РѕРІ
     {
         SearchServer server(""s);
         server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
@@ -315,7 +315,7 @@ void TestMatchingDocuments() {
         ASSERT_EQUAL(status, DocumentStatus::ACTUAL);
     }
     
-    //Поверяем, что наличие минус слова не влияет на вывод документа, не содеращего минус слово
+    //РџРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РЅР°Р»РёС‡РёРµ РјРёРЅСѓСЃ СЃР»РѕРІР° РЅРµ РІР»РёСЏРµС‚ РЅР° РІС‹РІРѕРґ РґРѕРєСѓРјРµРЅС‚Р°, РЅРµ СЃРѕРґРµСЂР°С‰РµРіРѕ РјРёРЅСѓСЃ СЃР»РѕРІРѕ
     {
         SearchServer server(""s);
         server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
@@ -328,9 +328,9 @@ void TestMatchingDocuments() {
 
 }
 
-//Тест проверяет правильность рассчета релевантности
+//РўРµСЃС‚ РїСЂРѕРІРµСЂСЏРµС‚ РїСЂР°РІРёР»СЊРЅРѕСЃС‚СЊ СЂР°СЃСЃС‡РµС‚Р° СЂРµР»РµРІР°РЅС‚РЅРѕСЃС‚Рё
 void TestRelevanceCalculation() {
-    //Задаем тела документов
+    //Р—Р°РґР°РµРј С‚РµР»Р° РґРѕРєСѓРјРµРЅС‚РѕРІ
     const int doc0_id = 1;
     const string content0 = "cat in the cat city"s;
     const vector<int> ratings0 = { 1, 2, 3 };
@@ -343,7 +343,7 @@ void TestRelevanceCalculation() {
     const string content2 = "dogs afraid of the black man"s;
     const vector<int> ratings2 = { 1, 2, 3 };
 
-    //Проверяем расчет relevance для doc2_id - он один содержит 'black'. Добавление трех документов нужно, чтобы при вычисленнии логарифм от 1 не давал 0.
+    //РџСЂРѕРІРµСЂСЏРµРј СЂР°СЃС‡РµС‚ relevance РґР»СЏ doc2_id - РѕРЅ РѕРґРёРЅ СЃРѕРґРµСЂР¶РёС‚ 'black'. Р”РѕР±Р°РІР»РµРЅРёРµ С‚СЂРµС… РґРѕРєСѓРјРµРЅС‚РѕРІ РЅСѓР¶РЅРѕ, С‡С‚РѕР±С‹ РїСЂРё РІС‹С‡РёСЃР»РµРЅРЅРёРё Р»РѕРіР°СЂРёС„Рј РѕС‚ 1 РЅРµ РґР°РІР°Р» 0.
     {
         SearchServer server(""s);
         server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
@@ -361,9 +361,9 @@ void TestRelevanceCalculation() {
 
 }
 
-//Тест проверяет, что relevance рассчитывется корректно, и документы сортируются в порядке неубывания relevance
+//РўРµСЃС‚ РїСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ relevance СЂР°СЃСЃС‡РёС‚С‹РІРµС‚СЃСЏ РєРѕСЂСЂРµРєС‚РЅРѕ, Рё РґРѕРєСѓРјРµРЅС‚С‹ СЃРѕСЂС‚РёСЂСѓСЋС‚СЃСЏ РІ РїРѕСЂСЏРґРєРµ РЅРµСѓР±С‹РІР°РЅРёСЏ relevance
 void TestRelevanceSorting() {
-    //Задаем тела документов
+    //Р—Р°РґР°РµРј С‚РµР»Р° РґРѕРєСѓРјРµРЅС‚РѕРІ
     const int doc0_id = 1;
     const string content0 = "cat in the cat city"s;
     const vector<int> ratings0 = { 1, 2, 3 };
@@ -376,7 +376,7 @@ void TestRelevanceSorting() {
     const string content2 = "dogs afraid of the black man"s;
     const vector<int> ratings2 = { 1, 2, 3 };
 
-    // Заносим все три документа в базу. Проверяем, что документы сортируются в ожидаемом порядке
+    // Р—Р°РЅРѕСЃРёРј РІСЃРµ С‚СЂРё РґРѕРєСѓРјРµРЅС‚Р° РІ Р±Р°Р·Сѓ. РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РґРѕРєСѓРјРµРЅС‚С‹ СЃРѕСЂС‚РёСЂСѓСЋС‚СЃСЏ РІ РѕР¶РёРґР°РµРјРѕРј РїРѕСЂСЏРґРєРµ
     {
         SearchServer server(""s);
         server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
@@ -391,9 +391,9 @@ void TestRelevanceSorting() {
     }
 }
 
-//Тест проверяет, что работает фильтрация найденных документов по предикату, заданным пользователем
+//РўРµСЃС‚ РїСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ СЂР°Р±РѕС‚Р°РµС‚ С„РёР»СЊС‚СЂР°С†РёСЏ РЅР°Р№РґРµРЅРЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ РїРѕ РїСЂРµРґРёРєР°С‚Сѓ, Р·Р°РґР°РЅРЅС‹Рј РїРѕР»СЊР·РѕРІР°С‚РµР»РµРј
 void TestFilteringByPredicat() {
-    //Задаем тела документов
+    //Р—Р°РґР°РµРј С‚РµР»Р° РґРѕРєСѓРјРµРЅС‚РѕРІ
     const int doc0_id = 1;
     const string content0 = "cat in the cat city"s;
     const vector<int> ratings0 = { 1, 2, 3 };
@@ -406,7 +406,7 @@ void TestFilteringByPredicat() {
     const string content2 = "dogs afraid of the black cat"s;
     const vector<int> ratings2 = { 1, 2, 3 };
 
-    //Проверяем, что выполняется условие нечетности
+    //РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ СѓСЃР»РѕРІРёРµ РЅРµС‡РµС‚РЅРѕСЃС‚Рё
     {
         SearchServer server(""s);
         server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
@@ -419,7 +419,7 @@ void TestFilteringByPredicat() {
         ASSERT_EQUAL_HINT(real_order, correct_order, "Incorrect document order sorted by relevance or id");
     }
 
-    //Проверяем, что выполняется фильтрация статуса
+    //РџСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ С„РёР»СЊС‚СЂР°С†РёСЏ СЃС‚Р°С‚СѓСЃР°
     {
         SearchServer server(""s);
         server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
@@ -431,15 +431,15 @@ void TestFilteringByPredicat() {
     }
 }
 
-//Тест проверяет, что поисковая система корректно фильтрует найденные документы по статусу в запросе
+//РўРµСЃС‚ РїСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ РїРѕРёСЃРєРѕРІР°СЏ СЃРёСЃС‚РµРјР° РєРѕСЂСЂРµРєС‚РЅРѕ С„РёР»СЊС‚СЂСѓРµС‚ РЅР°Р№РґРµРЅРЅС‹Рµ РґРѕРєСѓРјРµРЅС‚С‹ РїРѕ СЃС‚Р°С‚СѓСЃСѓ РІ Р·Р°РїСЂРѕСЃРµ
 void TestMatchingStatus() {
-    //Задаем тело документа
+    //Р—Р°РґР°РµРј С‚РµР»Рѕ РґРѕРєСѓРјРµРЅС‚Р°
     const int doc_id = 42;
     const string content = "cat in the city"s;
     const vector<int> ratings = { 1, 2, 3 };
 
-    // Сначала убеждаемся, что поиск слова
-    // находит документ с нужным статусом
+    // РЎРЅР°С‡Р°Р»Р° СѓР±РµР¶РґР°РµРјСЃСЏ, С‡С‚Рѕ РїРѕРёСЃРє СЃР»РѕРІР°
+    // РЅР°С…РѕРґРёС‚ РґРѕРєСѓРјРµРЅС‚ СЃ РЅСѓР¶РЅС‹Рј СЃС‚Р°С‚СѓСЃРѕРј
     {
         SearchServer server(""s);
         server.AddDocument(doc_id, content, DocumentStatus::IRRELEVANT, ratings);
@@ -448,8 +448,8 @@ void TestMatchingStatus() {
         ASSERT_EQUAL(found_docs[0].id, doc_id);
     }
 
-    // Затем убеждаемся, что поиск этого же слова, входящего в документ с неверным статусом,
-    // возвращает пустой результат
+    // Р—Р°С‚РµРј СѓР±РµР¶РґР°РµРјСЃСЏ, С‡С‚Рѕ РїРѕРёСЃРє СЌС‚РѕРіРѕ Р¶Рµ СЃР»РѕРІР°, РІС…РѕРґСЏС‰РµРіРѕ РІ РґРѕРєСѓРјРµРЅС‚ СЃ РЅРµРІРµСЂРЅС‹Рј СЃС‚Р°С‚СѓСЃРѕРј,
+    // РІРѕР·РІСЂР°С‰Р°РµС‚ РїСѓСЃС‚РѕР№ СЂРµР·СѓР»СЊС‚Р°С‚
     {
         SearchServer server("in the"s);
         server.AddDocument(doc_id, content, DocumentStatus::IRRELEVANT, ratings);
@@ -458,28 +458,28 @@ void TestMatchingStatus() {
 
 }
 
-//Тест проверяет, что поисковая система корректно выводит информацию о частоте слов в документе
+//РўРµСЃС‚ РїСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ РїРѕРёСЃРєРѕРІР°СЏ СЃРёСЃС‚РµРјР° РєРѕСЂСЂРµРєС‚РЅРѕ РІС‹РІРѕРґРёС‚ РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ С‡Р°СЃС‚РѕС‚Рµ СЃР»РѕРІ РІ РґРѕРєСѓРјРµРЅС‚Рµ
 
 void TestGetWordFrequencies() {
-    //Задаем тело документа
+    //Р—Р°РґР°РµРј С‚РµР»Рѕ РґРѕРєСѓРјРµРЅС‚Р°
     const int doc_id = 42;
     const string content = "fluffy fat cat in the cat house"s;
     const vector<int> ratings = { 1, 2, 3 };
 
-    //Создаем сервер
+    //РЎРѕР·РґР°РµРј СЃРµСЂРІРµСЂ
     SearchServer server("in the"s);
     server.AddDocument(doc_id, content, DocumentStatus::ACTUAL, ratings);
 
-    //Выводим результат и проверяем
+    //Р’С‹РІРѕРґРёРј СЂРµР·СѓР»СЊС‚Р°С‚ Рё РїСЂРѕРІРµСЂСЏРµРј
     auto answer = server.GetWordFrequencies(42);
     map<string_view, double> right_answer{ {"cat"sv, 0.4}, { "fat"sv, 0.2 }, { "fluffy"sv, 0.2 }, { "house"sv, 0.2 } };
     ASSERT_EQUAL_HINT(answer, right_answer, "Incorrect word list or word frequency in the document");
 
 }
 
-//Тест проверяет, что поисковая система корректно удаляет документ по id
+//РўРµСЃС‚ РїСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ РїРѕРёСЃРєРѕРІР°СЏ СЃРёСЃС‚РµРјР° РєРѕСЂСЂРµРєС‚РЅРѕ СѓРґР°Р»СЏРµС‚ РґРѕРєСѓРјРµРЅС‚ РїРѕ id
 void TestGetRemoveDocument() {
-    //Задаем тела документов
+    //Р—Р°РґР°РµРј С‚РµР»Р° РґРѕРєСѓРјРµРЅС‚РѕРІ
     const int doc0_id = 1;
     const string content0 = "cat in the cat city"s;
     const vector<int> ratings0 = { 1, 2, 3 };
@@ -492,38 +492,38 @@ void TestGetRemoveDocument() {
     const string content2 = "dogs afraid of the black cat"s;
     const vector<int> ratings2 = { 1, 2, 3 };
 
-    // Последовательный метод
+    // РџРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹Р№ РјРµС‚РѕРґ
     {
-        //Создаем сервер
+        //РЎРѕР·РґР°РµРј СЃРµСЂРІРµСЂ
         SearchServer server("in the"s);
         server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
         server.AddDocument(doc1_id, content1, DocumentStatus::ACTUAL, ratings1);
         server.AddDocument(doc2_id, content2, DocumentStatus::ACTUAL, ratings2);
 
-        //Удаляем второй документ
+        //РЈРґР°Р»СЏРµРј РІС‚РѕСЂРѕР№ РґРѕРєСѓРјРµРЅС‚
         server.RemoveDocument(2);
 
         {
-            //проверяем, что остались верные id
+            //РїСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РѕСЃС‚Р°Р»РёСЃСЊ РІРµСЂРЅС‹Рµ id
             set<int> right_answer{ 1, 3 };
             set<int> answer(server.begin(), server.end());
             ASSERT_EQUAL_HINT(answer, right_answer, "Incorrect id list");
         }
 
         {
-            //проверяем, что остались верные id
+            //РїСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РѕСЃС‚Р°Р»РёСЃСЊ РІРµСЂРЅС‹Рµ id
             set<int> right_answer{ 1, 3 };
             set<int> answer(server.begin(), server.end());
             ASSERT_EQUAL_HINT(answer, right_answer, "Incorrect id list");
         }
 
         {
-            //проверяем, что по удаленному id при запросе частоты слов возвращается пустой словарь
+            //РїСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РїРѕ СѓРґР°Р»РµРЅРЅРѕРјСѓ id РїСЂРё Р·Р°РїСЂРѕСЃРµ С‡Р°СЃС‚РѕС‚С‹ СЃР»РѕРІ РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РїСѓСЃС‚РѕР№ СЃР»РѕРІР°СЂСЊ
             ASSERT_HINT(server.GetWordFrequencies(2).empty(), "Returning map isn't empty"s);
         }
 
         {
-            //проверка, что поиск по уинкальному слову для документа также его не найдет
+            //РїСЂРѕРІРµСЂРєР°, С‡С‚Рѕ РїРѕРёСЃРє РїРѕ СѓРёРЅРєР°Р»СЊРЅРѕРјСѓ СЃР»РѕРІСѓ РґР»СЏ РґРѕРєСѓРјРµРЅС‚Р° С‚Р°РєР¶Рµ РµРіРѕ РЅРµ РЅР°Р№РґРµС‚
             ASSERT_HINT(server.FindTopDocuments("countryside"s).empty(), "Returning map isn't empty"s);
 
         }
@@ -531,38 +531,38 @@ void TestGetRemoveDocument() {
     }
 
 
-    // Параллельный метод
+    // РџР°СЂР°Р»Р»РµР»СЊРЅС‹Р№ РјРµС‚РѕРґ
     {
-        //Создаем сервер
+        //РЎРѕР·РґР°РµРј СЃРµСЂРІРµСЂ
         SearchServer server("in the"s);
         server.AddDocument(doc0_id, content0, DocumentStatus::ACTUAL, ratings0);
         server.AddDocument(doc1_id, content1, DocumentStatus::ACTUAL, ratings1);
         server.AddDocument(doc2_id, content2, DocumentStatus::ACTUAL, ratings2);
 
-        //Удаляем второй документ
+        //РЈРґР°Р»СЏРµРј РІС‚РѕСЂРѕР№ РґРѕРєСѓРјРµРЅС‚
         server.RemoveDocument(execution::par, 2);
 
         {
-            //проверяем, что остались верные id
+            //РїСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РѕСЃС‚Р°Р»РёСЃСЊ РІРµСЂРЅС‹Рµ id
             set<int> right_answer{ 1, 3 };
             set<int> answer(server.begin(), server.end());
             ASSERT_EQUAL_HINT(answer, right_answer, "Incorrect id list");
         }
 
         {
-            //проверяем, что остались верные id
+            //РїСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РѕСЃС‚Р°Р»РёСЃСЊ РІРµСЂРЅС‹Рµ id
             set<int> right_answer{ 1, 3 };
             set<int> answer(server.begin(), server.end());
             ASSERT_EQUAL_HINT(answer, right_answer, "Incorrect id list");
         }
 
         {
-            //проверяем, что по удаленному id при запросе частоты слов возвращается пустой словарь
+            //РїСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ РїРѕ СѓРґР°Р»РµРЅРЅРѕРјСѓ id РїСЂРё Р·Р°РїСЂРѕСЃРµ С‡Р°СЃС‚РѕС‚С‹ СЃР»РѕРІ РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ РїСѓСЃС‚РѕР№ СЃР»РѕРІР°СЂСЊ
             ASSERT_HINT(server.GetWordFrequencies(2).empty(), "Returning map isn't empty"s);
         }
 
         {
-            //проверка, что поиск по уинкальному слову для документа также его не найдет
+            //РїСЂРѕРІРµСЂРєР°, С‡С‚Рѕ РїРѕРёСЃРє РїРѕ СѓРёРЅРєР°Р»СЊРЅРѕРјСѓ СЃР»РѕРІСѓ РґР»СЏ РґРѕРєСѓРјРµРЅС‚Р° С‚Р°РєР¶Рµ РµРіРѕ РЅРµ РЅР°Р№РґРµС‚
             ASSERT_HINT(server.FindTopDocuments("countryside"s).empty(), "Returning map isn't empty"s);
 
         }
@@ -571,44 +571,44 @@ void TestGetRemoveDocument() {
 
 }
 
-//Тест проверяет, что поисковая система корректно удаляет документ дубликаты документов
+//РўРµСЃС‚ РїСЂРѕРІРµСЂСЏРµС‚, С‡С‚Рѕ РїРѕРёСЃРєРѕРІР°СЏ СЃРёСЃС‚РµРјР° РєРѕСЂСЂРµРєС‚РЅРѕ СѓРґР°Р»СЏРµС‚ РґРѕРєСѓРјРµРЅС‚ РґСѓР±Р»РёРєР°С‚С‹ РґРѕРєСѓРјРµРЅС‚РѕРІ
 void TestRemoveDuplicate() {
-    //Создаем сервер
+    //РЎРѕР·РґР°РµРј СЃРµСЂРІРµСЂ
     SearchServer search_server1("and with"s);
 
     search_server1.AddDocument(1, "funny pet and nasty rat"s, DocumentStatus::ACTUAL, { 7, 2, 7 });
     search_server1.AddDocument(2, "funny pet with curly hair"s, DocumentStatus::ACTUAL, { 1, 2 });
 
-    // дубликат документа 2, будет удалён
+    // РґСѓР±Р»РёРєР°С‚ РґРѕРєСѓРјРµРЅС‚Р° 2, Р±СѓРґРµС‚ СѓРґР°Р»С‘РЅ
     search_server1.AddDocument(3, "funny pet with curly hair"s, DocumentStatus::ACTUAL, { 1, 2 });
 
-    // отличие только в стоп-словах, считаем дубликатом
+    // РѕС‚Р»РёС‡РёРµ С‚РѕР»СЊРєРѕ РІ СЃС‚РѕРї-СЃР»РѕРІР°С…, СЃС‡РёС‚Р°РµРј РґСѓР±Р»РёРєР°С‚РѕРј
     search_server1.AddDocument(4, "funny pet and curly hair"s, DocumentStatus::ACTUAL, { 1, 2 });
 
-    // множество слов такое же, считаем дубликатом документа 1
+    // РјРЅРѕР¶РµСЃС‚РІРѕ СЃР»РѕРІ С‚Р°РєРѕРµ Р¶Рµ, СЃС‡РёС‚Р°РµРј РґСѓР±Р»РёРєР°С‚РѕРј РґРѕРєСѓРјРµРЅС‚Р° 1
     search_server1.AddDocument(5, "funny funny pet and nasty nasty rat"s, DocumentStatus::ACTUAL, { 1, 2 });
 
-    // добавились новые слова, дубликатом не является
+    // РґРѕР±Р°РІРёР»РёСЃСЊ РЅРѕРІС‹Рµ СЃР»РѕРІР°, РґСѓР±Р»РёРєР°С‚РѕРј РЅРµ СЏРІР»СЏРµС‚СЃСЏ
     search_server1.AddDocument(6, "funny pet and not very nasty rat"s, DocumentStatus::ACTUAL, { 1, 2 });
 
-    // множество слов такое же, как в id 6, несмотря на другой порядок, считаем дубликатом
+    // РјРЅРѕР¶РµСЃС‚РІРѕ СЃР»РѕРІ С‚Р°РєРѕРµ Р¶Рµ, РєР°Рє РІ id 6, РЅРµСЃРјРѕС‚СЂСЏ РЅР° РґСЂСѓРіРѕР№ РїРѕСЂСЏРґРѕРє, СЃС‡РёС‚Р°РµРј РґСѓР±Р»РёРєР°С‚РѕРј
     search_server1.AddDocument(7, "very nasty rat and not very funny pet"s, DocumentStatus::ACTUAL, { 1, 2 });
 
-    // есть не все слова, не является дубликатом
+    // РµСЃС‚СЊ РЅРµ РІСЃРµ СЃР»РѕРІР°, РЅРµ СЏРІР»СЏРµС‚СЃСЏ РґСѓР±Р»РёРєР°С‚РѕРј
     search_server1.AddDocument(8, "pet with rat and rat and rat"s, DocumentStatus::ACTUAL, { 1, 2 });
 
-    // слова из разных документов, не является дубликатом
+    // СЃР»РѕРІР° РёР· СЂР°Р·РЅС‹С… РґРѕРєСѓРјРµРЅС‚РѕРІ, РЅРµ СЏРІР»СЏРµС‚СЃСЏ РґСѓР±Р»РёРєР°С‚РѕРј
     search_server1.AddDocument(9, "nasty rat with curly hair"s, DocumentStatus::ACTUAL, { 1, 2 });
 
 
-    //проверяем, что список id документов после удаления дубликатов верный
+    //РїСЂРѕРІРµСЂСЏРµРј, С‡С‚Рѕ СЃРїРёСЃРѕРє id РґРѕРєСѓРјРµРЅС‚РѕРІ РїРѕСЃР»Рµ СѓРґР°Р»РµРЅРёСЏ РґСѓР±Р»РёРєР°С‚РѕРІ РІРµСЂРЅС‹Р№
     set<int> right_answer{ 1, 2, 6, 8, 9 };
     RemoveDuplicates(search_server1, cerr);
     set<int> answer(search_server1.begin(), search_server1.end());
     ASSERT_EQUAL_HINT(answer, right_answer, "Incorrect id list");
 }
 
-// Функция TestSearchServer является точкой входа для запуска тестов
+// Р¤СѓРЅРєС†РёСЏ TestSearchServer СЏРІР»СЏРµС‚СЃСЏ С‚РѕС‡РєРѕР№ РІС…РѕРґР° РґР»СЏ Р·Р°РїСѓСЃРєР° С‚РµСЃС‚РѕРІ
 void TestSearchServer() {
     RUN_TEST(TestAddingDocument);
     RUN_TEST(TestExcludeStopWordsFromAddedDocumentContent);
@@ -624,4 +624,4 @@ void TestSearchServer() {
 
 }
 
-// --------- Окончание модульных тестов поисковой системы -----------
+// --------- РћРєРѕРЅС‡Р°РЅРёРµ РјРѕРґСѓР»СЊРЅС‹С… С‚РµСЃС‚РѕРІ РїРѕРёСЃРєРѕРІРѕР№ СЃРёСЃС‚РµРјС‹ -----------
